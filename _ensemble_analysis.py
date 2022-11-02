@@ -117,7 +117,9 @@ EXITING.
 
     else:
 
-        logging.error("UNABLE TO INTERPRET FLAG parallel = \"%s\"" , args.parallel)
+        logging.error(
+            "UNABLE TO INTERPRET FLAG parallel = \"%s\"",
+            args.parallel)
         logging.error("parallel MUST BE EITHER \"TRUE\" OR \"FALSE\"")
         logging.error("EXITING")
 
@@ -171,7 +173,8 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     else:
 
         logging.error(
-            "UNABLE TO INTERPRET FLAG testing_mode = \"%s\"" , args.testing_mode)
+            "UNABLE TO INTERPRET FLAG testing_mode = \"%s\"",
+            args.testing_mode)
         logging.error("testing_mode MUST BE EITHER \"TRUE\" OR \"FALSE\"")
         logging.error("EXITING")
 
@@ -224,7 +227,7 @@ Analysis will be performed at {data_level} hPa
     logging.info(netcdf_variable_logging_text)
     logging.info("Netcdf Variablels:")
     for var in netcdf_variables:
-        logging.info("* %s" , var)
+        logging.info("* %s", var)
 
     # --------------------------------------------------------------------------
     # 2.B Prepare directory for saving output
@@ -270,14 +273,21 @@ Analysis will be performed at {data_level} hPa
         if parallel == "TRUE":
 
             logging.debug(
-                ' * Prepare task graph for Case %s of %s: %s' , icase,ncases,ens_member)
+                ' * Prepare task graph for Case %s of %s: %s',
+                icase,
+                ncases,
+                ens_member)
 
         else:
 
             # Relese memory from the previous ensemble member
             del dset_ens
 
-            logging.info('* Analyzing data for Case %s of %s: %s' , icase,ncases,ens_member)
+            logging.info(
+                '* Analyzing data for Case %s of %s: %s',
+                icase,
+                ncases,
+                ens_member)
 
         # Get the files for the particular ensemble member
         ens_member_files = case_files[ens_member]
@@ -286,7 +296,7 @@ Analysis will be performed at {data_level} hPa
         if int(verbose) < 10:
             logging.debug("Printing filenames...")
             for file in ens_member_files:
-                logging.debug("* %s" , file)
+                logging.debug("* %s", file)
 
         # read the data - use dask delayed
         # If testing_mode_short == TRUE, only select 10 timesteps
@@ -362,7 +372,7 @@ Note: the wait here may also indicate that the PBS job is waiting in the job que
     # 2.E CONCAT RESULTS
     # --------------------------------------------------------------------------
 
-    logging.info('Individual files saved to %s' , new_save_subdirectory)
+    logging.info('Individual files saved to %s', new_save_subdirectory)
     filenames = list(analysis_output_list.keys())
 
     if verbose <= 10:
@@ -400,7 +410,8 @@ Note: the wait here may also indicate that the PBS job is waiting in the job que
     logging.info('Analysis script complete.')
 
     logging.info(
-        'Analysis script duration (including PBSCluster Queueing):    %s',time_delta)
+        'Analysis script duration (including PBSCluster Queueing):    %s',
+        time_delta)
 
     if parallel == "TRUE":
 
