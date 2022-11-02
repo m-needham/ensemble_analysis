@@ -56,6 +56,7 @@ ENSEMBLE_NAME="CESM2-LE"
 JOB_SCHEDULER="NCAR"
 NC_FILE_TIMESTR="18500101-18591231" # 18500101-18591231
 PARALLEL="TRUE"
+PREPROCESS_KWARGS=""
 SAVE_PATH="/glade/work/$USER/data_misc/cesm2_lens/VT${DATA_LEVEL}/"
 SAVE_FIELDNAME="VT_VQ_VZ_${DATA_LEVEL}_SUBSET"
 SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}" 
@@ -72,7 +73,7 @@ VERBOSE="10"
 python3 _generate_casenames.py --casenames_file $CASENAMES_FILE --data_freq $DATA_FREQ --ensemble_name $ENSEMBLE_NAME --use_provided_casenames $USE_PROVIDED_CASENAMES
 
 # 2. PERFORM THE PRIMARY DATA ANALYSIS
-python3 _ensemble_analysis.py --casenames_file $CASENAMES_FILE --concat_results $CONCAT_RESULTS --data_freq $DATA_FREQ --data_level $DATA_LEVEL --ensemble_name $ENSEMBLE_NAME --job_scheduler $JOB_SCHEDULER --nc_file_timestr $NC_FILE_TIMESTR --parallel $PARALLEL --save_path $SAVE_PATH --save_name $SAVE_NAME --skip_analysis $SKIP_ANALYSIS --testing_mode $TESTING_MODE --testing_mode_short $TESTING_MODE_SHORT --user $USER --verbose $VERBOSE 
+python3 _ensemble_analysis.py --casenames_file $CASENAMES_FILE --concat_results $CONCAT_RESULTS --data_freq $DATA_FREQ --data_level $DATA_LEVEL --ensemble_name $ENSEMBLE_NAME --job_scheduler $JOB_SCHEDULER --nc_file_timestr $NC_FILE_TIMESTR --parallel $PARALLEL --preprocess_kwargs $PREPROCESS_KWARGS --save_path $SAVE_PATH --save_name $SAVE_NAME --skip_analysis $SKIP_ANALYSIS --testing_mode $TESTING_MODE --testing_mode_short $TESTING_MODE_SHORT --user $USER --verbose $VERBOSE 
 
 echo "Removing logs from dask PBS jobs"
 rm dask-worker*

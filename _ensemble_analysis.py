@@ -16,21 +16,21 @@ import dask
 import xarray as xr
 
 from _analysis_functions import (
+    concat_and_save,
     generate_ensemble_filenames,
+    generate_save_filename,
     get_ensemble_data_path,
     get_merge_compat,
     parse_command_line_arguments,
     read_casenames,
+    save_single_ensemble_member,
     setup_cluster,
 )
 
 from _user_functions import (
-    concat_and_save,
     custom_anaylsis_function,
     custom_variable_list,
     custom_preprocess_function,
-    generate_save_filename,
-    save_single_ensemble_member
 )
 
 # ==============================================================================
@@ -86,6 +86,7 @@ def main():
     job_scheduler = args.job_scheduler.upper()
     nc_file_timestr = args.nc_file_timestr.upper()
     parallel = args.parallel.upper()
+    preprocess_kwargs = args.preprocess_kwargs()
     save_path = args.save_path
     save_name = args.save_name
     skip_analysis = args.skip_analysis.upper()
@@ -352,7 +353,7 @@ Analysis will be performed at {data_level} hPa
 
         # Preprocess the data
         dset_ens = parallel_or_serial_preprocess_function(
-            dset_ens, ens_member, data_level)
+            dset_ens, ens_member, preprocess_kwargs, parallel)
 
         # Create the task graph of the custom analysis function for lazy eval
         dset_ens = parallel_or_serial_analysis_function(

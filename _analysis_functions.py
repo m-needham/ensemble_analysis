@@ -20,6 +20,9 @@ import socket
 
 import argparse
 
+import dask
+import xarray as xr
+
 import numpy as np
 
 from dask.distributed import Client
@@ -49,6 +52,7 @@ def parse_command_line_arguments():
     parser.add_argument('--ensemble_name', type=str)
     parser.add_argument('--job_scheduler', type=str)
     parser.add_argument('--parallel', type=str, default="TRUE")
+    parser.add_argument('--preprocess_kwargs', type=str, default="TRUE")
     parser.add_argument('--nc_file_timestr', type=str, default="NONE")
     parser.add_argument('--save_path', type=str)
     parser.add_argument('--save_name', type=str)
@@ -118,7 +122,7 @@ def read_casenames(casenames_file):
     logging.info("Reading in Case Names")
 
     casenames = []
-    with open(casenames_file, mode='r',encoding="utf-8") as file:
+    with open(casenames_file, mode='r', encoding="utf-8") as file:
         for line in file.readlines():
             casenames.append(line[:-1])
 
@@ -307,3 +311,96 @@ Then use this url:
     logging.info(dask_logging_text)
 
     return cluster, client
+
+# ==============================================================================
+# FUNCTION: custom combination function
+#
+# Combine output from every ensemble member into a desired format
+# ==============================================================================
+
+
+def concat_and_save(file_list, casenames, save_file, parallel):
+    '''Function to concatenate all ensemble members into a single dataset prior to saving'''
+
+    if parallel == "TRUE":
+        parallel_or_serial_open_function = dask.delayed(xr.open_dataset)
+
+    else:
+        parallel_or_serial_open_function = xr.open_dataset
+
+    logging.info('Combining data from all ensemble members...')
+
+    # Empty dict to hold xr objects prior to concat
+    dset_dict = {}
+
+    # Iterate over files
+    for file, case in zip(file_list, casenames):
+        logging.debug('Reading data from case: %s', case)
+        dset_dict[case] = parallel_or_serial_open_function(file)
+
+    dsets_computed = dask.compute(*dset_dict.values())
+
+    # Combine all of the analysis output into a single xr dataset along a new
+    # dimension of "ensemble member"
+    dset_concat = xr.concat(list(dsets_computed), dim='ensemble_member')
+
+    # Give appropriate names to the ensemble members, rather than just indexes
+    dset_concat = dset_concat.assign_coords({'ensemble_member': casenames})
+
+    logging.info('Saving to a single file...')
+
+    if parallel == "TRUE":
+
+        dset_concat = dset_concat.to_netcdf(save_file, compute=False)
+
+        dset_concat.compute()
+
+    else:
+
+        dset_concat.to_netcdf(save_file, compute=True)
+
+    logging.info('Data saved to %s', save_file)
+
+
+def generate_save_filename(
+        save_subdir,
+        save_name,
+        ens_name,
+        nc_file_timestr,
+        ens_member="",
+        combined=False,
+        n_ens=""):
+    '''Function to generate a unique filename for each ensemble member'''
+
+    if combined:
+
+        ens_filename = save_subdir + \
+            f"{ens_name}_{save_name}_{n_ens}members_{nc_file_timestr}.nc"
+
+    else:
+
+        ens_filename = save_subdir + \
+            f"{ens_name}_{ens_member}_{save_name}_{nc_file_timestr}.nc"
+
+    return ens_filename
+
+
+def save_single_ensemble_member(dset_save, ens_member_filename, parallel):
+    '''Function to save a netcdf file for a single ensemble member'''
+
+    logging.debug("Saving the following dataset:\n%s", dset_save)
+
+    if parallel == "TRUE":
+
+        dset_save = dask.delayed(
+            dset_save.to_netcdf)(
+            ens_member_filename,
+            compute=True)
+
+        dset_save.compute()
+
+    else:
+
+        dset_save = dset_save.to_netcdf(ens_member_filename)
+
+    return dset_save
