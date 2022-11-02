@@ -46,7 +46,7 @@ def custom_variable_list():
         "T",  # in K
         "V",  # in m/s
         "Z3",  # in m
-        "p_s",  # need for interp from hybrid to pressure levels
+        "PS",  # need for interp from hybrid to pressure levels
 
         # Add more variables here
     ]
@@ -62,6 +62,24 @@ def custom_variable_list():
 #
 # Perform the data preprocessing for a single ensemble member
 # ==============================================================================
+def parse_preprocess_kwargs(preprocess_kwargs):
+    '''Function to parse preprocess_kwargs into a dictionary
+
+    Assumed format is:
+        * kwarg1name&&value1_kwarg2name&&value2_
+    '''
+
+    # Get a list of
+    kwarg_pairs = preprocess_kwargs.split("_")
+
+    kwarg_dict = {}
+    for pair in kwarg_pairs:
+        key, val = pair.split("&&")
+
+        kwarg_dict[key] = val
+
+    return kwarg_dict
+
 
 def custom_preprocess_function(
         dset_ens,
@@ -83,6 +101,13 @@ Debugging text for ensemble member: {case_name}'
     '''
 
     logging.debug(preprocess_debugging_text)
+
+    # Parse kwargs for preprocessing step
+    kwarg_dict = parse_preprocess_kwargs(preprocess_kwargs)
+
+    logging.debug("Preprocessing Arguements:")
+    for key, val in zip(kwarg_dict.keys(), kwarg_dict.values()):
+        logging.debug("* %s %s", key, val)
 
     # Create a new dataset to hold data after preprocessing has occurred
     dset_ens_preprocessed = xr.Dataset()
@@ -108,7 +133,6 @@ Debugging text for ensemble member: {case_name}'
 def custom_anaylsis_function(
         dset_ens_preprocessed,
         case_name,
-        preprocess_kwargs,
         parallel="TRUE"):
     '''Custom function to analyze data'''
 
