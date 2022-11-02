@@ -12,7 +12,7 @@ import socket
 import sys
 import time
 import datetime
-import xarray as xr 
+import xarray as xr
 
 from dask.array.core import map_blocks
 from dask.distributed import Client
@@ -25,7 +25,7 @@ from _user_functions import *
 # Main Function Call
 # ==============================================================================
 def main():
-    
+
     # ==========================================================================
     # Section 1
     # ==========================================================================
@@ -34,7 +34,7 @@ def main():
     #    * 1.C Setup Parallel / Serial Analysis
     #    * 1.D Read in list of case names from file
     # ==========================================================================
-    
+
     start_time = datetime.datetime.now()
     
     # --------------------------------------------------------------------------
@@ -419,3 +419,4 @@ Analysis will be performed at {DATA_LEVEL} hPa
         
 if __name__ == "__main__":
     main()
+    
