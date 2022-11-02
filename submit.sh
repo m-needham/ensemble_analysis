@@ -35,11 +35,11 @@ conda activate py_ucar
 
 # CASENAMES_FILE:  Name of local text file to hold casenames. See USE_PROVIDED_CASENAMES, below
 # DATA_FREQ:       Time frequency for input data (see README for details)
-# DATA_LEVEL:      Level (in hPa) to subset vertically resolved data. To ignore, use "-1.0"
 # ENSEMBLE_NAME:   String identifier to help with functions. See _analysis_functions.py for a list of supported members
 # JOB_SCHEDULER:   Type of system for the dask cluster
 # NC_FILE_TIMESTR: Additional string to filter nc files. Useful for only calculating on high-temporal-resolution data. To ignore, use "NONE"
 # PARALLEL:        (valid: "TRUE", "FALSE") Use Parallel or Serial computing 
+# PREPROCESS_KWARGS: Expected format is "name1&&value1_name2&&value2_"
 # SAVE_PATH:       Location to store output files
 # SAVE_NAME:       String identifier for output files
 # SKIP_ANALYSIS:   (valid: "TRUE", "FALSE") If TRUE, only run _generate_casenames.py
@@ -55,7 +55,7 @@ ENSEMBLE_NAME="CESM2-LE"
 JOB_SCHEDULER="NCAR"
 NC_FILE_TIMESTR="18500101-18591231" # 18500101-18591231
 PARALLEL="TRUE"
-PREPROCESS_KWARGS=""
+PREPROCESS_KWARGS="datalev&&250"
 SAVE_PATH="/glade/work/$USER/data_misc/cesm2_lens/VT${DATA_LEVEL}/"
 SAVE_FIELDNAME="VT_VQ_VZ_${DATA_LEVEL}_SUBSET"
 SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}" 
