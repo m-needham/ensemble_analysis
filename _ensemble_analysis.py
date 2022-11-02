@@ -19,6 +19,7 @@ from dask.distributed import Client
 from dask_jobqueue import PBSCluster
 
 from _analysis_functions import *
+from _user_functions import *
 
 # ==============================================================================
 # Main Function Call
