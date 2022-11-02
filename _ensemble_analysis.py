@@ -1,3 +1,9 @@
+'''Primary ensemble analysis
+
+Author: Michael R. Needham (m.needham@colostate.edu)
+Last Updated: 2 November 2022
+'''
+
 # ==============================================================================
 # Import Statements
 # ==============================================================================
@@ -9,8 +15,23 @@ import os
 import dask
 import xarray as xr
 
-from _analysis_functions import *
-from _user_functions import *
+from _analysis_functions import (
+    generate_ensemble_filenames,
+    get_ensemble_data_path,
+    get_merge_compat,
+    parse_command_line_arguments,
+    read_casenames,
+    setup_cluster
+)
+
+from _user_functions import (
+    concat_and_save,
+    custom_anaylsis_function,
+    custom_variable_list,
+    custom_preprocess_function,
+    generate_save_filename,
+    save_single_ensemble_member
+)
 
 # ==============================================================================
 # Main Function Call
@@ -18,6 +39,27 @@ from _user_functions import *
 
 
 def main():
+    '''Main analysis function
+    
+    PROCEDURE
+
+    Section 1
+     * 1.A Parse command line argument
+     * 1.B Initialize Logging
+     * 1.C Setup Parallel / Serial Analysis
+     * 1.D Read in list of case names from file
+
+    Section 2
+     * 2.A Generate list of filenames for each ensemble member
+     * 2.B Iterate over ensemble members
+       * 2.B.1 Data preprocessing
+       * 2.B.2 Primary analysis
+       * 2.B.C Save results
+     * 2.C
+       * parallel: Perform delayed computation
+       * SERIAL: No Action
+     * 2.D Optional: Concat results and save to disk
+    '''
 
     # ==========================================================================
     # Section 1
