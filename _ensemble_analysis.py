@@ -2,21 +2,12 @@
 # Import Statements
 # ==============================================================================
 
-import argparse
-import dask
-import geocat.comp as gc
-import logging
-import numpy  as np
-import os
-import socket
-import sys
-import time
 import datetime
-import xarray as xr
+import logging
+import os
 
-from dask.array.core import map_blocks
-from dask.distributed import Client
-from dask_jobqueue import PBSCluster
+import dask
+import xarray as xr
 
 from _analysis_functions import *
 from _user_functions import *
@@ -24,6 +15,8 @@ from _user_functions import *
 # ==============================================================================
 # Main Function Call
 # ==============================================================================
+
+
 def main():
 
     # ==========================================================================
@@ -36,111 +29,116 @@ def main():
     # ==========================================================================
 
     start_time = datetime.datetime.now()
-    
+
     # --------------------------------------------------------------------------
     # 1.A Parse command line argument
-    # -------------------------------------------------------------------------- 
-    
-    args            = parse_command_line_arguments()
+    # --------------------------------------------------------------------------
 
-    CASENAMES_FILE     = args.casenames_file
-    CONCAT_RESULTS     = args.concat_results.upper()
-    DATA_FREQ          = args.data_freq
-    DATA_LEVEL         = float(args.data_level)
-    ENSEMBLE_NAME      = args.ensemble_name.upper()
-    JOB_SCHEDULER      = args.job_scheduler.upper()
-    NC_FILE_TIMESTR    = args.nc_file_timestr.upper()
-    PARALLEL           = args.parallel.upper()
-    SAVE_PATH          = args.save_path
-    SAVE_NAME          = args.save_name
-    SKIP_ANALYSIS      = args.skip_analysis.upper()
-    TESTING_MODE       = args.testing_mode.upper()
-    TESTING_MODE_SHORT = args.testing_mode_short.upper()    
-    VERBOSE            = args.verbose 
-    USER               = args.user  
-    
+    args = parse_command_line_arguments()
+
+    casenames_file = args.casenames_file
+    concat_results = args.concat_results.upper()
+    data_freq = args.data_freq
+    data_level = float(args.data_level)
+    ensemble_name = args.ensemble_name.upper()
+    job_scheduler = args.job_scheduler.upper()
+    nc_file_timestr = args.nc_file_timestr.upper()
+    parallel = args.parallel.upper()
+    save_path = args.save_path
+    save_name = args.save_name
+    skip_analysis = args.skip_analysis.upper()
+    testing_mode = args.testing_mode.upper()
+    testing_mode_short = args.testing_mode_short.upper()
+    verbose = args.verbose
+    user = args.user
+
     # --------------------------------------------------------------------------
     # 1.B Initialize Logging
-    # --------------------------------------------------------------------------    
+    # --------------------------------------------------------------------------
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',
         encoding='utf-8',
-        level=VERBOSE, # default level is 20 (info)
-        datefmt='%Y-%m-%d %H:%M:%S',        
+        level=verbose,  # default level is 20 (info)
+        datefmt='%Y-%m-%d %H:%M:%S',
     )
 
-    logging.info(f'Logging initialized at level {VERBOSE}.')
-    
-    if SKIP_ANALYSIS == "TRUE":
-        
+    logging.info(f'Logging initialized at level {verbose}.')
+
+    if skip_analysis == "TRUE":
+
         skip_analysis_text = f'''
 
 ================================================================================
-SCRIPT RUN TO GENERATE CASENAMES ONLY
+SCRIPT RUN TO GENERATE casenames ONLY
 ANALYSIS WILL NOT BE PERFORMED
 
-TO PERFORM ANALYSIS, SET SKIP_ANALYSIS=\"FALSE\"
+TO PERFORM ANALYSIS, SET skip_analysis=\"FALSE\"
 EXITING.
 ================================================================================
             '''
 
         logging.warning(skip_analysis_text)
-        
+
         return
-    
-    #def parallel_or_serial_open # <--- REMOVE if script works
+
+    # def parallel_or_serial_open # <--- REMOVE if script works
     # --------------------------------------------------------------------------
     # 1.C Setup Parallel / Serial Analysis
     # --------------------------------------------------------------------------
-    if PARALLEL == "FALSE":
-        
-        logging.info(f"Flag \"parallel\" set to FALSE. Computation Proceeding in Serial")
-        
-        parallel_or_serial_open_function       = xr.open_mfdataset
+    if parallel == "FALSE":
+
+        logging.info(
+            f"Flag \"parallel\" set to FALSE. Computation Proceeding in Serial")
+
+        parallel_or_serial_open_function = xr.open_mfdataset
         parallel_or_serial_preprocess_function = custom_preprocess_function
-        parallel_or_serial_analysis_function   = custom_anaylsis_function
-        parallel_or_serial_save_function       = save_single_ensemble_member        
-    
-    elif PARALLEL == "TRUE":
-        
+        parallel_or_serial_analysis_function = custom_anaylsis_function
+        parallel_or_serial_save_function = save_single_ensemble_member
+
+    elif parallel == "TRUE":
+
         logging.info(f"Flag \"parallel\" set to TRUE.")
-        
-        parallel_or_serial_open_function       = dask.delayed(xr.open_mfdataset)
-        parallel_or_serial_preprocess_function = dask.delayed(custom_preprocess_function)
-        parallel_or_serial_analysis_function   = dask.delayed(custom_anaylsis_function)
-        parallel_or_serial_save_function       = dask.delayed(save_single_ensemble_member)
-        
+
+        parallel_or_serial_open_function = dask.delayed(xr.open_mfdataset)
+        parallel_or_serial_preprocess_function = dask.delayed(
+            custom_preprocess_function)
+        parallel_or_serial_analysis_function = dask.delayed(
+            custom_anaylsis_function)
+        parallel_or_serial_save_function = dask.delayed(
+            save_single_ensemble_member)
+
         logging.info(f'Initializing dask client')
-        
-        cluster, client = setup_cluster(user=USER,job_scheduler=JOB_SCHEDULER)
-        
-        if type(cluster) == str:
+
+        cluster, client = setup_cluster(user=user, job_scheduler=job_scheduler)
+
+        if isinstance(cluster, str):
             return
-        
+
     else:
-        
-        logging.error(f"UNABLE TO INTERPRET FLAG PARALLEL = \"{args.parallel}\"")
-        logging.error(f"PARALLEL MUST BE EITHER \"TRUE\" OR \"FALSE\"")
+
+        logging.error(
+            f"UNABLE TO INTERPRET FLAG parallel = \"{args.parallel}\"")
+        logging.error(f"parallel MUST BE EITHER \"TRUE\" OR \"FALSE\"")
         logging.error(f"EXITING")
-        
+
         return
 
     # --------------------------------------------------------------------------
     # 1.D Read in list of case names from file
-    # -------------------------------------------------------------------------- 
-            
-    CASENAMES = read_casenames(casenames_file=CASENAMES_FILE)
-    
-    # By default do not perform any subsetting in time, but if 
-    # TESTING_MODE_SHORT = "TRUE", will use this variable to only select the
+    # --------------------------------------------------------------------------
+
+    casenames = read_casenames(casenames_file=casenames_file)
+
+    # By default do not perform any subsetting in time, but if
+    # testing_mode_short = "TRUE", will use this variable to only select the
     # first ten timesteps
-    isel_time = dict(time=slice(None,None))
-    
-    if TESTING_MODE == "TRUE":
-        
+    isel_time = dict(time=slice(None, None))
+
+    if testing_mode == "TRUE":
+
         n_ensembles_for_test = 2
-    
+
         testing_logging_text = f'''
 
 ================================================================================
@@ -151,39 +149,39 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
         logging.warning(testing_logging_text)
 
-        CASENAMES = CASENAMES[:n_ensembles_for_test]
-        
-        
-        if TESTING_MODE_SHORT == "TRUE":
-            
-            logging.warning("FLAG \"TESTING_MODE_SHORT\" SET TO \"TRUE\"")
-            logging.warning("ONLY ANALZING FIRST 10 TIMESTEPS")            
-            
-            isel_time = dict(time=slice(1,10))
-            
+        casenames = casenames[:n_ensembles_for_test]
+
+        if testing_mode_short == "TRUE":
+
+            logging.warning("FLAG \"testing_mode_short\" SET TO \"TRUE\"")
+            logging.warning("ONLY ANALZING FIRST 10 TIMESTEPS")
+
+            isel_time = dict(time=slice(1, 10))
+
         else:
-            
+
             # don't need to do anything
             pass
-        
-    elif TESTING_MODE == "FALSE":
-        
+
+    elif testing_mode == "FALSE":
+
         # don't need to do anything
         pass
-    
-    # Catch unrecognized argument for TESTING_MODE flag
-    else: 
-        
-        logging.error(f"UNABLE TO INTERPRET FLAG TESTING_MODE = \"{args.testing_mode}\"")
-        logging.error(f"TESTING_MODE MUST BE EITHER \"TRUE\" OR \"FALSE\"")
+
+    # Catch unrecognized argument for testing_mode flag
+    else:
+
+        logging.error(
+            f"UNABLE TO INTERPRET FLAG testing_mode = \"{args.testing_mode}\"")
+        logging.error(f"testing_mode MUST BE EITHER \"TRUE\" OR \"FALSE\"")
         logging.error(f"EXITING")
-        
-    ncases = len(CASENAMES)
-    
+
+    ncases = len(casenames)
+
     # ==========================================================================
     # Section 1 - COMPLETE
     # ==========================================================================
-    
+
     # ==========================================================================
     # Section 2
     # ==========================================================================
@@ -193,230 +191,235 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     #        * 2.B.2 Primary analysis
     #        * 2.B.C Save results
     #    * 2.C
-    #       * PARALLEL: Perform delayed computation
+    #       * parallel: Perform delayed computation
     #       * SERIAL: No Action
     #    * 2.D Optional: Concat results and save to disk
-    # ==========================================================================    
+    # ==========================================================================
 
     # --------------------------------------------------------------------------
     # 2.A Generate list of filenames for each ensemble member
-    # --------------------------------------------------------------------------  
+    # --------------------------------------------------------------------------
 
     # Get list of variables to load
-    NETCDF_VARIABLES = custom_variable_list()
-    
-    DATA_PATH = get_ensemble_data_path(ENSEMBLE_NAME) + DATA_FREQ + "/"
-    
-    CASE_FILES = generate_ensemble_filenames(
-        netcdf_variables = NETCDF_VARIABLES,
-        casenames        = CASENAMES,
-        path             = DATA_PATH,
-        nc_file_timestr  = NC_FILE_TIMESTR
-    )  
-    
-    MERGE_COMPAT = get_merge_compat(DATA_FREQ)
-    
+    netcdf_variables = custom_variable_list()
+
+    data_path = get_ensemble_data_path(ensemble_name) + data_freq + "/"
+
+    case_files = generate_ensemble_filenames(
+        netcdf_variables=netcdf_variables,
+        casenames=casenames,
+        path=data_path,
+        nc_file_timestr=nc_file_timestr
+    )
+
+    merge_compat = get_merge_compat(data_freq)
+
     # Printout of analysis level for user
     netcdf_variable_logging_text = f'''
-    
+
 ================================================================================
-Analysis will be performed at {DATA_LEVEL} hPa
+Analysis will be performed at {data_level} hPa
 ================================================================================
     '''
-    
+
     logging.info(netcdf_variable_logging_text)
     logging.info(f"Netcdf Variablels:")
-    for VAR in NETCDF_VARIABLES:
-        logging.info(f"* {VAR}")    
-    
+    for var in netcdf_variables:
+        logging.info(f"* {var}")
+
     # --------------------------------------------------------------------------
     # 2.B Prepare directory for saving output
     # --------------------------------------------------------------------------
-    
-    NEW_SAVE_DIRECTORY    = SAVE_PATH + ENSEMBLE_NAME + "/"
-    NEW_SAVE_SUBDIRECTORY = NEW_SAVE_DIRECTORY + "INDIVIDUAL-FILES/"
-    
+
+    new_save_directory = save_path + ensemble_name + "/"
+    new_save_subdirectory = new_save_directory + "INDIVIDUAL-FILES/"
+
     # Make the save path if it does not yet exist
-    if not os.path.exists(SAVE_PATH):
-        os.mkdir(SAVE_PATH)        
-    
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
     # Make the directory if it does not yet exist
-    if not os.path.exists(NEW_SAVE_DIRECTORY):
-        os.mkdir(NEW_SAVE_DIRECTORY)    
-    
+    if not os.path.exists(new_save_directory):
+        os.mkdir(new_save_directory)
+
     # Make the subdirectory if it does not yet exist
-    if not os.path.exists(NEW_SAVE_SUBDIRECTORY):
-        os.mkdir(NEW_SAVE_SUBDIRECTORY)
-    
+    if not os.path.exists(new_save_subdirectory):
+        os.mkdir(new_save_subdirectory)
+
     # --------------------------------------------------------------------------
     # 2.C Iterate over ensemble members
-    # --------------------------------------------------------------------------  
-    
+    # --------------------------------------------------------------------------
+
     logging.info(f'Iterating over ensemble members:')
-    
+
     # Empty dict to hold analysis output for every ensemble member
-    ANALYSIS_OUTPUT_LIST = {}
-    
-    # Dummy variable to use in del statement, below, during the first ens member 
+    analysis_output_list = {}
+
+    # Dummy variable to use in del statement, below, during the first ens
+    # member
     dset_ens = xr.Dataset()
-    
-    # 
+
+    #
     icase = 1
-    
-    for ENS_MEMBER in CASENAMES:
-        
+
+    for ens_member in casenames:
+
         # ----------------------------------------------------------------------
         # 2.B.1 Prepare Parallel or Serial Analysis
         # ----------------------------------------------------------------------
-        
-        if PARALLEL == "TRUE":
-        
-            logging.debug(f' * Prepare task graph for Case {icase} of {ncases}: {ENS_MEMBER}')
-            
+
+        if parallel == "TRUE":
+
+            logging.debug(
+                f' * Prepare task graph for Case {icase} of {ncases}: {ens_member}')
+
         else:
-            
+
             # Relese memory from the previous ensemble member
             del dset_ens
-            
-            logging.info(f'* Analyzing data for Case {icase} of {ncases}: {ENS_MEMBER}')
 
-        
+            logging.info(
+                f'* Analyzing data for Case {icase} of {ncases}: {ens_member}')
+
         # Get the files for the particular ensemble member
-        ens_member_files = CASE_FILES[ENS_MEMBER]
-        
+        ens_member_files = case_files[ens_member]
+
         # Need to specify as 9 or below to log all files
-        if int(VERBOSE) < 10:
+        if int(verbose) < 10:
             logging.debug("Printing filenames..")
             for file in ens_member_files:
                 logging.debug(f"* {file}")
-                
+
         # read the data - use dask delayed
         # If testing_mode_short == TRUE, only select 10 timesteps
         dset_ens = parallel_or_serial_open_function(
-            ens_member_files, 
+            ens_member_files,
             combine='by_coords',
-            compat=MERGE_COMPAT,
-            parallel=PARALLEL,
-            chunks={'time':100,'lat':192,'lon':288},
+            compat=merge_compat,
+            parallel=parallel,
+            chunks={'time': 100, 'lat': 192, 'lon': 288},
         ).isel(isel_time)
-        
+
         # Preprocess the data
-        dset_ens = parallel_or_serial_preprocess_function(dset_ens,ENS_MEMBER,DATA_LEVEL)
-    
+        dset_ens = parallel_or_serial_preprocess_function(
+            dset_ens, ens_member, data_level)
+
         # Create the task graph of the custom analysis function for lazy eval
         dset_ens = parallel_or_serial_analysis_function(
             dset_ens_preprocessed=dset_ens,
-            case_name=ENS_MEMBER,
-            data_level=DATA_LEVEL,
-            parallel=PARALLEL,
+            case_name=ens_member,
+            data_level=data_level,
+            parallel=parallel,
         )
-        
+
         # not parallelized, simple string manipulation
-        ENS_MEMBER_FILENAME = generate_save_filename(
-            save_subdir=NEW_SAVE_SUBDIRECTORY,
-            save_name=SAVE_NAME,
-            ens_name=ENSEMBLE_NAME,
-            ens_member=ENS_MEMBER,
-            nc_file_timestr=NC_FILE_TIMESTR
+        ens_member_filename = generate_save_filename(
+            save_subdir=new_save_subdirectory,
+            save_name=save_name,
+            ens_name=ensemble_name,
+            ens_member=ens_member,
+            nc_file_timestr=nc_file_timestr
         )
-               
+
         # SAVE the data to disk
         dset_ens = parallel_or_serial_save_function(
             dset_save=dset_ens,
-            ens_member_filename = ENS_MEMBER_FILENAME,
-            parallel=PARALLEL
+            ens_member_filename=ens_member_filename,
+            parallel=parallel
         )
-        
+
         # ----------------------------------------------------------------------
         # 2.B.2 Collect results (delayed objects)
         # ----------------------------------------------------------------------
-        
+
         # Store the delayed objects in a dict for later computation. Use
         # filenames for keys
-        ANALYSIS_OUTPUT_LIST[ENS_MEMBER_FILENAME] = dset_ens
-        
-        icase += 1
-        
-    logging.info('COMPLETED Iterating over ensemble members.')
-        
-    # --------------------------------------------------------------------------
-    # 2.D.PARALLEL Perform delayed computation and collect results
-    # --------------------------------------------------------------------------
-    
-    if PARALLEL == "TRUE":
-           
-        logging.info(f'Performing delayed parallel computation.\nNote, the wait here may also indicate that the PBS job is waiting in the job queue.')
+        analysis_output_list[ens_member_filename] = dset_ens
 
-        ANALYSIS_OUTPUT_COMPUTED_LIST = dask.compute([x for x in ANALYSIS_OUTPUT_LIST.values()])[0]
-        
+        icase += 1
+
+    logging.info('COMPLETED Iterating over ensemble members.')
+
     # --------------------------------------------------------------------------
-    # 2.D.SERIAL Collect Results
-    # --------------------------------------------------------------------------        
-        
-    else:
-        
-        # Take the values of the computation as a list
-        ANALYSIS_OUTPUT_COMPUTED_LIST = [x for x in ANALYSIS_OUTPUT_LIST.values()]
-        
+    # 2.D.parallel Perform delayed computation and collect results
+    # --------------------------------------------------------------------------
+
+    if parallel == "TRUE":
+
+        logging.info(
+            '''
+Performing delayed parallel computation.
+Note: the wait here may also indicate that the PBS job is waiting in the job queue.
+            '''
+        )
+
+        dask.compute(list(analysis_output_list.values()))[0]
+
+    # --------------------------------------------------------------------------
+    # 2.D.SERIAL
+    # PASS: No action required
+    # --------------------------------------------------------------------------
+
     # --------------------------------------------------------------------------
     # 2.E CONCAT RESULTS
-    # --------------------------------------------------------------------------             
-    
-    logging.info(f'Individual files saved to {NEW_SAVE_SUBDIRECTORY}')
-    filenames = [x for x in ANALYSIS_OUTPUT_LIST.keys()]
-    
-    if VERBOSE <= 10:
+    # --------------------------------------------------------------------------
+
+    logging.info(f'Individual files saved to {new_save_subdirectory}')
+    filenames = list(analysis_output_list.keys())
+
+    if verbose <= 10:
         for file in filenames:
             logging.debug(f"* {file}")
-                              
-    if CONCAT_RESULTS == "TRUE":
-        
+
+    if concat_results == "TRUE":
+
         logging.info("Concatenating Files...")
-        
+
         combined_save_name = generate_save_filename(
-            save_subdir=NEW_SAVE_DIRECTORY,
-            save_name=SAVE_NAME,
-            ens_name=ENSEMBLE_NAME,
-            nc_file_timestr=NC_FILE_TIMESTR,
+            save_subdir=new_save_directory,
+            save_name=save_name,
+            ens_name=ensemble_name,
+            nc_file_timestr=nc_file_timestr,
             combined=True,
             n_ens=len(filenames)
         )
-        
+
         concat_and_save(
             file_list=filenames,
             save_file=combined_save_name,
-            casenames=CASENAMES,
-            parallel=PARALLEL
+            casenames=casenames,
+            parallel=parallel
         )
-        
+
     else:
-        
-        logging.info(f"User Flag \"CONCAT_RESULTS\" set to \"FALSE\"")  
-   
+
+        logging.info(f"User Flag \"concat_results\" set to \"FALSE\"")
+
     end_time = datetime.datetime.now()
-    
+
     time_delta = end_time - start_time
-    
+
     logging.info('Analysis script complete.')
-    
-    logging.info(f'Analysis script duration (including PBSCluster Queueing):    {time_delta}')
-    
-    if PARALLEL == "TRUE":
-        
+
+    logging.info(
+        f'Analysis script duration (including PBSCluster Queueing):    {time_delta}')
+
+    if parallel == "TRUE":
+
         logging.info("Closing cluster...")
-        
+
         try:
             cluster.close()
             client.shutdown()
-    
+
         # Ignore an error associated with shutting down the cluster
         except AssertionError:
             pass
-    
+
     # ==========================================================================
     # Section 2 - COMPLETE
     # ==========================================================================
-        
+
+
 if __name__ == "__main__":
     main()
-    
