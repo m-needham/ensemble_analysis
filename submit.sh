@@ -44,7 +44,7 @@ conda activate py_ucar
 # SAVE_NAME:       String identifier for output files
 # SKIP_ANALYSIS:   (valid: "TRUE", "FALSE") If TRUE, only run _generate_casenames.py
 # TESTING_MODE:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only two ensemble members
-# TESTING_MODE:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only 10 timesteps from each ensemble member
+# TESTING_MODE_SHORT:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only 10 timesteps from each ensemble member
 # USE_PROVIDED_CASENAMES: Use casenames provided by user in CASENAMES_FILE
 # VERBOSE:         Output level for log file (10 - debug, 20 - info, 30 - warning, 40 - error)
 
