@@ -48,7 +48,6 @@ def parse_command_line_arguments():
     parser.add_argument('--casenames_file', type=str)
     parser.add_argument('--concat_results', type=str)
     parser.add_argument('--data_freq', type=str)
-    parser.add_argument('--data_level', type=str, default="-1.0")
     parser.add_argument('--ensemble_name', type=str)
     parser.add_argument('--job_scheduler', type=str)
     parser.add_argument('--parallel', type=str, default="TRUE")

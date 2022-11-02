@@ -81,7 +81,6 @@ def main():
     casenames_file = args.casenames_file
     concat_results = args.concat_results.upper()
     data_freq = args.data_freq
-    data_level = float(args.data_level)
     ensemble_name = args.ensemble_name.upper()
     job_scheduler = args.job_scheduler.upper()
     nc_file_timestr = args.nc_file_timestr.upper()
@@ -259,15 +258,6 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
     merge_compat = get_merge_compat(data_freq)
 
-    # Printout of analysis level for user
-    netcdf_variable_logging_text = f'''
-
-================================================================================
-Analysis will be performed at {data_level} hPa
-================================================================================
-    '''
-
-    logging.info(netcdf_variable_logging_text)
     logging.info("Netcdf Variablels:")
     for var in netcdf_variables:
         logging.info("* %s", var)
@@ -359,7 +349,6 @@ Analysis will be performed at {data_level} hPa
         dset_ens = parallel_or_serial_analysis_function(
             dset_ens_preprocessed=dset_ens,
             case_name=ens_member,
-            data_level=data_level,
             parallel=parallel,
         )
 
