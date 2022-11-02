@@ -21,7 +21,7 @@ from _analysis_functions import (
     get_merge_compat,
     parse_command_line_arguments,
     read_casenames,
-    setup_cluster
+    setup_cluster,
 )
 
 from _user_functions import (
@@ -40,7 +40,7 @@ from _user_functions import (
 
 def main():
     '''Main analysis function
-    
+
     PROCEDURE
 
     Section 1
