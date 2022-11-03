@@ -43,8 +43,8 @@ conda activate py_ucar
 # SAVE_PATH:       Location to store output files
 # SAVE_NAME:       String identifier for output files
 # SKIP_ANALYSIS:   (valid: "TRUE", "FALSE") If TRUE, only run _generate_casenames.py
-# TESTING_MODE:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only two ensemble members
-# TESTING_MODE_SHORT:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only 10 timesteps from each ensemble member
+# TESTING_MODE_N_ENS:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only two ensemble members
+# TESTING_MODE_N_TIME:   (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only 10 timesteps from each ensemble member
 # USE_PROVIDED_CASENAMES: Use casenames provided by user in CASENAMES_FILE
 # VERBOSE:         Output level for log file (10 - debug, 20 - info, 30 - warning, 40 - error)
 
@@ -54,7 +54,7 @@ DATA_FREQ="month_1"
 ENSEMBLE_NAME="CESM2-LE"
 JOB_SCHEDULER="NCAR"
 NC_FILE_TIMESTR="NONE" # 18500101-18591231
-PARALLEL="FALSE"
+PARALLEL="TRUE"
 PREPROCESS_KWARGS="datalev&&250"
 SAVE_PATH="/glade/work/$USER/data_misc/ens_analysis/test/"
 SAVE_FIELDNAME="brightness_temperature" 
@@ -62,7 +62,7 @@ SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}"
 SKIP_ANALYSIS="FALSE"
 SKIP_PREPROCESS="TRUE"
 TESTING_MODE_N_ENS="TRUE"
-TESTING_MODE_N_TIME="TRUE"
+TESTING_MODE_N_TIME="FALSE"
 USE_PROVIDED_CASENAMES="FALSE"
 VERBOSE="20" 
 
