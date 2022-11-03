@@ -56,9 +56,9 @@ def parse_command_line_arguments():
     parser.add_argument('--save_path', type=str)
     parser.add_argument('--save_name', type=str)
     parser.add_argument('--skip_analysis', type=str, default="FALSE")
-    parser.add_argument('--skip_preprocess', type=str, default="TRUE")    
-    parser.add_argument('--testing_mode', type=str, default="FALSE")
-    parser.add_argument('--testing_mode_short', type=str, default="FALSE")
+    parser.add_argument('--skip_preprocess', type=str, default="TRUE")
+    parser.add_argument('--testing_mode_n_ens', type=str, default="FALSE")
+    parser.add_argument('--testing_mode_n_time', type=str, default="FALSE")
     parser.add_argument('--user', type=str)
     parser.add_argument('--verbose', nargs='?', type=int, const=10, default=20)
 
@@ -180,7 +180,7 @@ def generate_ensemble_filenames(
             files_tmp = [
                 file_dir_tmp +
                 x for x in os.listdir(file_dir_tmp) if ".nc" in x]
-            
+
             logging.debug(
                 "Total Number of Files for Variable %s, %s",
                 var,
@@ -375,23 +375,34 @@ def generate_save_filename(
         nc_file_timestr,
         ens_member="",
         combined=False,
-        n_ens=""):
+        n_ens="",
+        testing_mode_n_time="FALSE"
+):
     '''Function to generate a unique filename for each ensemble member'''
-    
+
     if nc_file_timestr == "NONE":
         nc_file_timestr = ""
-    
+
     if combined:
 
         ens_filename = save_subdir + \
-            f"{ens_name}_{save_name}_{n_ens}members_{nc_file_timestr}.nc"
+            f"{ens_name}_{save_name}_{n_ens}members_{nc_file_timestr}"
 
     else:
 
         ens_filename = save_subdir + \
-            f"{ens_name}_{ens_member}_{save_name}_{nc_file_timestr}.nc"
+            f"{ens_name}_{ens_member}_{save_name}_{nc_file_timestr}"
 
-    return ens_filename
+    if testing_mode_n_time == "TRUE":
+
+        logging.debug("Appending \"_TESTINGMODE\" to Filename")
+
+        ens_filename = ens_filename + "_TESTINGMODE"
+
+    else:
+        logging.debug("Not Appending to Filename")
+
+    return ens_filename + ".nc"
 
 
 def save_single_ensemble_member(dset_save, ens_member_filename, parallel):

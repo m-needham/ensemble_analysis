@@ -89,9 +89,9 @@ def main():
     save_path = args.save_path
     save_name = args.save_name
     skip_analysis = args.skip_analysis.upper()
-    skip_preprocess = args.skip_preprocess.upper()    
-    testing_mode = args.testing_mode.upper()
-    testing_mode_short = args.testing_mode_short.upper()
+    skip_preprocess = args.skip_preprocess.upper()
+    testing_mode_n_ens = args.testing_mode_n_ens.upper()
+    testing_mode_n_time = args.testing_mode_n_time.upper()
     verbose = args.verbose
     user = args.user
 
@@ -175,11 +175,11 @@ EXITING.
     casenames = read_casenames(casenames_file=casenames_file)
 
     # By default do not perform any subsetting in time, but if
-    # testing_mode_short = "TRUE", will use this variable to only select the
+    # testing_mode_n_time = "TRUE", will use this variable to only select the
     # first ten timesteps
     isel_time = dict(time=slice(None, None))
 
-    if testing_mode == "TRUE":
+    if testing_mode_n_ens == "TRUE":
 
         n_ensembles_for_test = 2
 
@@ -195,30 +195,35 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
         casenames = casenames[:n_ensembles_for_test]
 
-        if testing_mode_short == "TRUE":
+        if testing_mode_n_time == "TRUE":
 
-            logging.warning("FLAG \"testing_mode_short\" SET TO \"TRUE\"")
+            logging.warning("FLAG \"testing_mode_n_time\" SET TO \"TRUE\"")
             logging.warning("ONLY ANALZING FIRST 10 TIMESTEPS")
 
-            isel_time = dict(time=slice(1, 10))
+            isel_time = dict(time=slice(0, 10))
 
         else:
+
+            logging.info(
+                "Flag \"testing_mode_n_time\" set to %s",
+                testing_mode_n_time)
 
             # don't need to do anything
             pass
 
-    elif testing_mode == "FALSE":
+    elif testing_mode_n_ens == "FALSE":
 
         # don't need to do anything
         pass
 
-    # Catch unrecognized argument for testing_mode flag
+    # Catch unrecognized argument for testing_mode_n_ens flag
     else:
 
         logging.error(
-            "UNABLE TO INTERPRET FLAG testing_mode = \"%s\"",
-            args.testing_mode)
-        logging.error("testing_mode MUST BE EITHER \"TRUE\" OR \"FALSE\"")
+            "UNABLE TO INTERPRET FLAG testing_mode_n_ens = \"%s\"",
+            args.testing_mode_n_ens)
+        logging.error(
+            "testing_mode_n_ens MUST BE EITHER \"TRUE\" OR \"FALSE\"")
         logging.error("EXITING")
 
     ncases = len(casenames)
@@ -249,8 +254,8 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     netcdf_variables = custom_variable_list()
 
     data_path = get_ensemble_data_path(ensemble_name) + data_freq + "/"
-    
-    logging.debug("Inferred Data Path:\n  %s",data_path)
+
+    logging.debug("Inferred Data Path:\n  %s", data_path)
 
     case_files = generate_ensemble_filenames(
         netcdf_variables=netcdf_variables,
@@ -327,19 +332,19 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
         # Get the files for the particular ensemble member
         ens_member_files = case_files[ens_member]
-        
+
         if len(ens_member_files) == 0:
             logging.warning(
-                "NO FILES FOUND FOR THE CURRENT ENSEMBLE MEMBER: %s",ensemble_name
-            )
+                "NO FILES FOUND FOR THE CURRENT ENSEMBLE MEMBER: %s",
+                ensemble_name)
             logging.warning(
-'''
+                '''
 ================================================================================
 ENSURE COMPATABLE USAGE OF THE FOLLOWING PARAMETERS IN submit.sh:
     * DATA_FREQ
     * ENSEMBLE_NAME
     * NC_FILE_TIMESTR
-    
+
 CHECK FILES IN THE FOLLOWING DIRECTORY:
 %s
 ================================================================================
@@ -350,10 +355,9 @@ CHECK FILES IN THE FOLLOWING DIRECTORY:
             logging.debug("Printing filenames...")
             for file in ens_member_files:
                 logging.debug("* %s", file)
-                
 
         # read the data - use dask delayed
-        # If testing_mode_short == TRUE, only select 10 timesteps
+        # If testing_mode_n_time == TRUE, only select 10 timesteps
         dset_ens = parallel_or_serial_open_function(
             ens_member_files,
             combine='by_coords',
@@ -363,13 +367,12 @@ CHECK FILES IN THE FOLLOWING DIRECTORY:
         ).isel(isel_time)
 
         # Preprocess the data
-        logging.info("Flag \"skip_preprocess\"=\"%s\"",skip_preprocess)
         dset_ens = parallel_or_serial_preprocess_function(
-            dset_ens = dset_ens, 
-            case_name = ens_member, 
-            preprocess_kwargs = preprocess_kwargs, 
-            skip_preprocess = skip_preprocess, 
-            parallel = parallel)
+            dset_ens=dset_ens,
+            case_name=ens_member,
+            preprocess_kwargs=preprocess_kwargs,
+            skip_preprocess=skip_preprocess,
+            parallel=parallel)
 
         # Create the task graph of the custom analysis function for lazy eval
         dset_ens = parallel_or_serial_analysis_function(
@@ -384,7 +387,8 @@ CHECK FILES IN THE FOLLOWING DIRECTORY:
             save_name=save_name,
             ens_name=ensemble_name,
             ens_member=ens_member,
-            nc_file_timestr=nc_file_timestr
+            nc_file_timestr=nc_file_timestr,
+            testing_mode_n_time=testing_mode_n_time
         )
 
         # SAVE the data to disk
@@ -447,7 +451,8 @@ Note: the wait here may also indicate that the PBS job is waiting in the job que
             ens_name=ensemble_name,
             nc_file_timestr=nc_file_timestr,
             combined=True,
-            n_ens=len(filenames)
+            n_ens=len(filenames),
+            testing_mode_n_time=testing_mode_n_time
         )
 
         concat_and_save(

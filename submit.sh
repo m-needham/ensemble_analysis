@@ -50,21 +50,21 @@ conda activate py_ucar
 
 CASENAMES_FILE="casenames.txt"
 CONCAT_RESULTS="TRUE"
-DATA_FREQ="day_1"
+DATA_FREQ="month_1"
 ENSEMBLE_NAME="CESM2-LE"
 JOB_SCHEDULER="NCAR"
-NC_FILE_TIMESTR="18500101-18591231" # 18500101-18591231
-PARALLEL="TRUE"
+NC_FILE_TIMESTR="NONE" # 18500101-18591231
+PARALLEL="FALSE"
 PREPROCESS_KWARGS="datalev&&250"
-SAVE_PATH="/glade/work/$USER/data_misc/cesm2_lens/VT${DATA_LEVEL}/"
-SAVE_FIELDNAME="VT_VQ_VZ_${DATA_LEVEL}_SUBSET"
+SAVE_PATH="/glade/work/$USER/data_misc/ens_analysis/test/"
+SAVE_FIELDNAME="brightness_temperature" 
 SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}" 
 SKIP_ANALYSIS="FALSE"
 SKIP_PREPROCESS="TRUE"
-TESTING_MODE="FALSE"
-TESTING_MODE_SHORT="FALSE"
-USE_PROVIDED_CASENAMES="TRUE"
-VERBOSE="10" 
+TESTING_MODE_N_ENS="TRUE"
+TESTING_MODE_N_TIME="TRUE"
+USE_PROVIDED_CASENAMES="FALSE"
+VERBOSE="20" 
 
 
 # -----PERFORM ANALYSIS WITH PYTHON SCRIPTS------------------------------------
@@ -73,7 +73,7 @@ VERBOSE="10"
 python3 _generate_casenames.py --casenames_file $CASENAMES_FILE --data_freq $DATA_FREQ --ensemble_name $ENSEMBLE_NAME --use_provided_casenames $USE_PROVIDED_CASENAMES
 
 # 2. PERFORM THE PRIMARY DATA ANALYSIS
-python3 _ensemble_analysis.py --casenames_file $CASENAMES_FILE --concat_results $CONCAT_RESULTS --data_freq $DATA_FREQ --ensemble_name $ENSEMBLE_NAME --job_scheduler $JOB_SCHEDULER --nc_file_timestr $NC_FILE_TIMESTR --parallel $PARALLEL --preprocess_kwargs $PREPROCESS_KWARGS --save_path $SAVE_PATH --save_name $SAVE_NAME --skip_analysis $SKIP_ANALYSIS --skip_preprocess $SKIP_PREPROCESS --testing_mode $TESTING_MODE --testing_mode_short $TESTING_MODE_SHORT --user $USER --verbose $VERBOSE 
+python3 _ensemble_analysis.py --casenames_file $CASENAMES_FILE --concat_results $CONCAT_RESULTS --data_freq $DATA_FREQ --ensemble_name $ENSEMBLE_NAME --job_scheduler $JOB_SCHEDULER --nc_file_timestr $NC_FILE_TIMESTR --parallel $PARALLEL --preprocess_kwargs $PREPROCESS_KWARGS --save_path $SAVE_PATH --save_name $SAVE_NAME --skip_analysis $SKIP_ANALYSIS --skip_preprocess $SKIP_PREPROCESS --testing_mode_n_ens $TESTING_MODE_N_ENS --testing_mode_n_time $TESTING_MODE_N_TIME --user $USER --verbose $VERBOSE 
 
 echo "Removing logs from dask PBS jobs"
 rm dask-worker*

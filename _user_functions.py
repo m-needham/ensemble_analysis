@@ -85,7 +85,6 @@ def parse_preprocess_kwargs(preprocess_kwargs):
         key, val = pair.split("&&")
 
         kwarg_dict[key] = val
-    
 
     return kwarg_dict
 
@@ -110,13 +109,13 @@ THE DEFAULT BEHAVIOR IS SIMPLY TO PASS INPUT DATA ALONG
 
 Include notes here on specifically how the preprocessing takes place, if at all
     '''
-    
-    logging.info("Flag \"skip_preprocess\"=\"%s\"",skip_preprocess)
+
+    logging.info("Flag \"skip_preprocess\"=\"%s\"", skip_preprocess)
 
     if skip_preprocess == "TRUE":
 
         return dset_ens
-        
+
     logging.debug('''
 ================================================================================
 Debugging text for ensemble member: %s'
@@ -176,7 +175,7 @@ def custom_anaylsis_function(
     logging.debug(
         'Performing data analysis for ensemble member: %s',
         case_name)
-    logging.debug("Preprocessed Dataset:\n%s",dset_ens_preprocessed)
+    logging.debug("Preprocessed Dataset:\n%s", dset_ens_preprocessed)
 
     # Create a new dataset to hold data after analysis has occurred
     dset_ens_analyzed = xr.Dataset()
