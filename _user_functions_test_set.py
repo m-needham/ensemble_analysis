@@ -138,7 +138,13 @@ Debugging text for ensemble member: %s'
     # Create a new dataset to hold data after preprocessing has occurred
     dset_ens_preprocessed = xr.Dataset()
 
-    # INSERT PREPROCESS CODE HERE
+    # ===== BEGINNING OF CUSTOM PREPROCESSING CODE =============================
+    
+    #
+    #
+    #
+    
+    # ===== END OF CUSTOM PREPROCESSING CODE ===================================
 
     return dset_ens_preprocessed  # output should be an xr dataset
 
@@ -153,7 +159,16 @@ def custom_anaylsis_function(
         dset_ens_preprocessed,
         case_name,
         parallel="TRUE"):
-    '''Custom function to analyze data'''
+    '''Custom function to analyze data
+    
+
+    THE INPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
+    #
+    THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
+    MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
+    IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
+    DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.    
+    '''
 
     logging.debug(
         'Performing data analysis for ensemble member: %s',
@@ -163,14 +178,28 @@ def custom_anaylsis_function(
     # Create a new dataset to hold data after analysis has occurred
     dset_ens_analyzed = xr.Dataset()
 
-    # INSERT ANALYSIS CODE HERE
-    #
-    # THE INPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
-    #
-    # THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
-    # MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
-    # IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
-    # DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
+    # ===== BEGINNING OF CUSTOM ANALYSIS CODE ==================================
+    
+    # Get metadata for creating xr data array
+    coords = dset_ens_preprocessed["FLNT"].coords
+    dims   = dset_ens_preprocessed["FLNT"].dims   
+    
+    # Calculate brightness temperature
+    temp_brt = xr.DataArray(
+        data = (dset_ens_preprocessed["FLNT"] / (5.67e-8)) ** 0.25,
+        coords = coords,
+        dims = dims,
+        attrs = {
+            'long_name':'brightness temperature from FLNT',
+            'units':'K'
+        }
+    )
+    
+    # store in analyzed dataset, along with FLNT
+    dset_ens_analyzed["FLNT"] = dset_ens_preprocessed["FLNT"]
+    dset_ens_analyzed["TBRT"] = temp_brt
+    
+    # ===== END OF CUSTOM ANALYSIS CODE ========================================
 
     if parallel == "FALSE":
         logging.debug("PARALLEL=FALSE: Computing analyzed data...")
