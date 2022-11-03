@@ -88,8 +88,8 @@ def main():
     preprocess_kwargs = args.preprocess_kwargs()
     save_path = args.save_path
     save_name = args.save_name
-    skip_preprocess = args.skip_preprocess.upper()
     skip_analysis = args.skip_analysis.upper()
+    skip_preprocess = args.skip_preprocess.upper()    
     testing_mode = args.testing_mode.upper()
     testing_mode_short = args.testing_mode_short.upper()
     verbose = args.verbose

@@ -93,8 +93,28 @@ def custom_preprocess_function(
         dset_ens,
         case_name,
         preprocess_kwargs,
-        parallel="TRUE"):
-    '''Function to preprocess data prior to analysis'''
+        parallel="TRUE",
+        skip_preprocess="TRUE"
+):
+    '''Function to preprocess data prior to analysis
+    
+THE INPUT "dset_ens" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.    
+
+THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
+MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
+IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
+DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
+
+THE DEFAULT BEHAVIOR IS SIMPLY TO PASS INPUT DATA ALONG 
+    
+Include notes here on specifically how the preprocessing takes place, if at all
+    '''
+    
+    if skip_preprocess == "TRUE":
+        
+        logging.info("Flag \"skip_preprocess\"=\"TRUE\"")
+        
+        return dset_ens
 
     logging.debug('''
 ================================================================================
@@ -119,13 +139,6 @@ Debugging text for ensemble member: %s'
     dset_ens_preprocessed = xr.Dataset()
 
     # INSERT PREPROCESS CODE HERE
-    #
-    # THE INPUT "dset_ens" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
-    #
-    # THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
-    # MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
-    # IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
-    # DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
 
     return dset_ens_preprocessed  # output should be an xr dataset
 

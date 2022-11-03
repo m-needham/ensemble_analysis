@@ -94,7 +94,7 @@ def custom_preprocess_function(
         case_name,
         preprocess_kwargs,
         parallel="TRUE",
-        skip_preprocess="FALSE"
+        skip_preprocess="TRUE"
 ):
     '''Function to preprocess data prior to analysis
 
