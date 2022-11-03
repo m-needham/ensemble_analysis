@@ -1,5 +1,7 @@
 ## Typical Workflow
 
+Updated 3 November 2022
+
 #### 1. Make edits to `submit.sh`
 
 * Ensure PBS submission options are correct
@@ -32,21 +34,27 @@ ENSEMBLE_NAME="CESM2-LE"
 SAVE_PATH="/glade/work/$USER/ensemble_analysis/"
 ```
 
-> Note: If the specified directory does not exist, the script will create it.
+> Note: If the specified directory does not exist, the script will attempt to create it. However, if one of the parent directories does not exist, the script will throw an error. It is recommended to ensure the desired `SAVE_PATH` exists prior to running the script with the quick command `$ mkdir desired_save_path`
 
-#### 2. Make edits to `analysis_scripts.py`
+#### 2. Make edits to `analysis_functions.py`
+
+The user will likely not make any edits here with the possible exception of changing requested programming resources for the job submission script:
 
 * Update `setup_cluster` to request the desired programming resources for the problem and ensure the project name is correct
 
-* Update `custom_variable_list` to include the desired variables to import and pass to the custom analysis function
+#### 3. Make edits to `user_functions.py`
 
-* Specify `custom_analysis_function` to perform the desired computations for a single ensemble member. All of the variables specified in `custom_variable_list` will be stored in the dataset `dset_ens` for use here.
+1. Update `custom_variable_list` to include the desired variables to import and pass to the custom analysis function
 
-* Make necessary changes to `custom_combination_function` - the current behavior is to concatenate the dataset for each ensemble member into a single large dataset of dimensions (ensemble_member, time, ..., ...). This could also be where an ensemble mean could be calculated (consider doing this in parallel with dask.delayed!) or other secondary calculations.
+2. Specify `custom_preprocess_function` to perform the desired data preprocessing for a single ensemble member. All of the variables specified in `custom_variable_list` will be inherited in the dataset `dset_ens` for use here. Examples of preprocessing include:
+    * Interpolating from model hybrid coordinates to pressure coordinates
+    * Spatial or temporal resampling
+    * Spatial or temporal subsetting ([Recommended by xarray to occur early in the pipeline](https://docs.xarray.dev/en/stable/user-guide/dask.html#optimization-tips))
 
-* Make necessary changes to `custom_save_function` - the current behavior is to attempt to save the entire dataset from `custom_combination_function` into a single netcdf file. I have included logic here to save files for each ensemble member in case there is an error saving the one large file
 
-#### 3. Run the script
+3. Specify `custom_analysis_function` to perform the desired computations for a single ensemble member. All of the variables after preprocessing will automatically be available here.
+
+#### 4. Run the script
 
 The entire application can be run on [Casper](https://arc.ucar.edu/knowledge_base/70549550) with the command
 

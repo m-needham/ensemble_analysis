@@ -4,9 +4,9 @@ Flexible python script to perform arbitrary analysis of large ensemble model out
 
 > For instructions on how to use this script, see `INSTRUCTIONS.md`
 
-**Updated 2 November 2022**
+**Updated 3 November 2022**
 
-This directory contains a template for analyzing large ensembles of climate simulations with a custom analysis function. Most of the code in this directory does not need to change for different analysis goals. Instead it is designed for the user to specify the functions `custom_variable_list`, `custom_preprocess_function`, and `custom_analysis_function` to be applied identically to each ensemble member, and a `custom_save_function` to control the management of output files.
+This directory contains a template for analyzing large ensembles of climate simulations with a custom analysis function. Most of the code in this directory does not need to change for different analysis goals. Instead it is designed for the user to specify the functions `custom_variable_list`, `custom_preprocess_function`, and `custom_analysis_function` to be applied identically to each ensemble member.
 
 #### Contents
 
@@ -15,6 +15,7 @@ This directory contains a template for analyzing large ensembles of climate simu
     * `_ensemble_analysis.py`
     * `_generate_casenames.py`
     * `_user_functions.py`
+    * `_user_functions_test_set.py`
 * Markdown Notes
     * `INSTRUCTIONS.md`
     * `NOTES.md`
@@ -41,6 +42,18 @@ The `submit.sh` then calls two python scripts:
         * Save the results to an output `.nc` file or files
           
 `_ensemble_analysis.py` imports many functions from `_analysis_functions.py`, and from `_user_functions.py`. Most user edits are expected to take place in `_user_functions.py`. 
+
+## Test functions
+
+There is an additional python file, `_user_functions_test_set.py`, which contains a minimum working example of the capabilities of this script. The `submit.sh` script, as written, does not call `_user_functions_test_set.py`; However if `_user_functions_test_set.py` is renamed to `_user_functions.py` (and replaces the existing file), then the testing example will be run. 
+
+The testing example inputs outgoing longwave radiation data (variable name `FLNT`), and calculates brightness temperature following the [Stefan-Boltzmann Law](https://en.wikipedia.org/wiki/Stefan%E2%80%93Boltzmann_law):
+
+$$
+F = \sigma T_B^4 \quad \rightarrow \quad T_B = \Big(\frac{F}{\sigma}\Big)^\frac{1}{4}
+$$
+
+Where $\sigma=5.67\times10^{-8}$ is the Stefan-Boltzmann constant.
 
 
 
