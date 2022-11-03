@@ -180,6 +180,12 @@ def generate_ensemble_filenames(
             files_tmp = [
                 file_dir_tmp +
                 x for x in os.listdir(file_dir_tmp) if ".nc" in x]
+            
+            logging.debug(
+                "Total Number of Files for Variable %s, %s",
+                var,
+                len(files_tmp)
+            )
 
             # -----------------------------------------------------------------
             # START: Treatment for same-case, different-name
@@ -371,6 +377,10 @@ def generate_save_filename(
         combined=False,
         n_ens=""):
     '''Function to generate a unique filename for each ensemble member'''
+    
+    if nc_file_timestr == "NONE":
+        nc_file_timestr = ""
+    
 
     if combined:
 

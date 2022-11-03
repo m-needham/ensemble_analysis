@@ -85,6 +85,7 @@ def parse_preprocess_kwargs(preprocess_kwargs):
         key, val = pair.split("&&")
 
         kwarg_dict[key] = val
+    
 
     return kwarg_dict
 
@@ -109,13 +110,13 @@ THE DEFAULT BEHAVIOR IS SIMPLY TO PASS INPUT DATA ALONG
 
 Include notes here on specifically how the preprocessing takes place, if at all
     '''
+    
+    logging.info("Flag \"skip_preprocess\"=\"%s\"",skip_preprocess)
 
     if skip_preprocess == "TRUE":
 
-        logging.info("Flag \"skip_preprocess\"=\"TRUE\"")
-
         return dset_ens
-
+        
     logging.debug('''
 ================================================================================
 Debugging text for ensemble member: %s'
@@ -128,6 +129,8 @@ Debugging text for ensemble member: %s'
 --------------------------------------------------------------------------------
     ''', case_name, dset_ens, dset_ens.chunks)
 
+    logging.debug('Flag \"PARALLEL\" set to %s', parallel)
+
     # Parse kwargs for preprocessing step
     kwarg_dict = parse_preprocess_kwargs(preprocess_kwargs)
 
@@ -138,7 +141,13 @@ Debugging text for ensemble member: %s'
     # Create a new dataset to hold data after preprocessing has occurred
     dset_ens_preprocessed = xr.Dataset()
 
-    # INSERT PREPROCESS CODE HERE
+    # ===== BEGINNING OF CUSTOM PREPROCESSING CODE ===========================
+
+    #
+    #
+    #
+
+    # ===== END OF CUSTOM PREPROCESSING CODE =================================
 
     return dset_ens_preprocessed  # output should be an xr dataset
 
@@ -153,24 +162,47 @@ def custom_anaylsis_function(
         dset_ens_preprocessed,
         case_name,
         parallel="TRUE"):
-    '''Custom function to analyze data'''
+    '''Custom function to analyze data
+
+
+    THE INPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
+
+    THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
+    MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
+    IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
+    DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
+    '''
 
     logging.debug(
         'Performing data analysis for ensemble member: %s',
         case_name)
-    logging.debug(dset_ens_preprocessed)
+    logging.debug("Preprocessed Dataset:\n%s",dset_ens_preprocessed)
 
     # Create a new dataset to hold data after analysis has occurred
     dset_ens_analyzed = xr.Dataset()
 
-    # INSERT ANALYSIS CODE HERE
-    #
-    # THE INPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
-    #
-    # THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
-    # MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
-    # IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
-    # DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
+    # ===== BEGINNING OF CUSTOM ANALYSIS CODE ================================
+
+    # Get metadata for creating xr data array
+    coords = dset_ens_preprocessed["FLNT"].coords
+    dims = dset_ens_preprocessed["FLNT"].dims
+
+    # Calculate brightness temperature
+    temp_brt = xr.DataArray(
+        data=(dset_ens_preprocessed["FLNT"] / (5.67e-8)) ** 0.25,
+        coords=coords,
+        dims=dims,
+        attrs={
+            'long_name': 'brightness temperature from FLNT',
+            'units': 'K'
+        }
+    )
+
+    # store in analyzed dataset, along with FLNT
+    dset_ens_analyzed["FLNT"] = dset_ens_preprocessed["FLNT"]
+    dset_ens_analyzed["TBRT"] = temp_brt
+
+    # ===== END OF CUSTOM ANALYSIS CODE ======================================
 
     if parallel == "FALSE":
         logging.debug("PARALLEL=FALSE: Computing analyzed data...")
@@ -200,9 +232,13 @@ def remap_hybrid_to_pressure(data: xr.DataArray,
                              lev_dim: str = None) -> xr.DataArray:
     '''Function to remap hybrid model levels to pressure levels
 
-    Originally taken from geocat.comp function of the same name
+    Originally taken from the package geocat-comp, from the function:
 
-http_s://geocat-comp.readthedocs.io/en/latest/user_api/generated/geocat.comp.interpolation.interp_hybrid_to_pressure.html
+    geocat.comp.interpolation.interp_hybrid_to_pressure
+
+    See https://geocat-comp.readthedocs.io/en/latest/ for details
+
+
     '''
 
     # Suppress a metpy interpolation warning

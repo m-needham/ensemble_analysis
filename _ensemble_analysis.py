@@ -85,7 +85,7 @@ def main():
     job_scheduler = args.job_scheduler.upper()
     nc_file_timestr = args.nc_file_timestr.upper()
     parallel = args.parallel.upper()
-    preprocess_kwargs = args.preprocess_kwargs()
+    preprocess_kwargs = args.preprocess_kwargs.upper()
     save_path = args.save_path
     save_name = args.save_name
     skip_analysis = args.skip_analysis.upper()
@@ -249,6 +249,8 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     netcdf_variables = custom_variable_list()
 
     data_path = get_ensemble_data_path(ensemble_name) + data_freq + "/"
+    
+    logging.debug("Inferred Data Path:\n  %s",data_path)
 
     case_files = generate_ensemble_filenames(
         netcdf_variables=netcdf_variables,
@@ -259,7 +261,7 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
     merge_compat = get_merge_compat(data_freq)
 
-    logging.info("Netcdf Variablels:")
+    logging.info("Netcdf Variables:")
     for var in netcdf_variables:
         logging.info("* %s", var)
 
@@ -343,8 +345,13 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
         ).isel(isel_time)
 
         # Preprocess the data
+        logging.info("Flag \"skip_preprocess\"=\"%s\"",skip_preprocess)
         dset_ens = parallel_or_serial_preprocess_function(
-            dset_ens, ens_member, preprocess_kwargs, skip_preprocess, parallel)
+            dset_ens = dset_ens, 
+            case_name = ens_member, 
+            preprocess_kwargs = preprocess_kwargs, 
+            skip_preprocess = skip_preprocess, 
+            parallel = parallel)
 
         # Create the task graph of the custom analysis function for lazy eval
         dset_ens = parallel_or_serial_analysis_function(
