@@ -66,19 +66,16 @@ def parse_preprocess_kwargs(preprocess_kwargs):
     '''Function to parse preprocess_kwargs into a dictionary
 
     Assumed format is:
-        * kwarg1name&&value1_kwarg2name&&value2_
+        * name1&&value1_name2&&value2
+        
+    Output will be a dictionary like:
+        dict[name1] = value1
+        dict[name2] = value2
+        ...
+        dict[nameN] = valueN
+        
+    For an arbitrary number of key/val pairs
     '''
-
-    # Get a list of
-    kwarg_pairs = preprocess_kwargs.split("_")
-
-    kwarg_dict = {}
-    for pair in kwarg_pairs:
-        key, val = pair.split("&&")
-
-        kwarg_dict[key] = val
-
-    return kwarg_dict
 
 
 def custom_preprocess_function(
