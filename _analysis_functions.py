@@ -56,6 +56,7 @@ def parse_command_line_arguments():
     parser.add_argument('--save_path', type=str)
     parser.add_argument('--save_name', type=str)
     parser.add_argument('--skip_analysis', type=str, default="FALSE")
+    parser.add_argument('--skip_preprocess', type=str, default="TRUE")    
     parser.add_argument('--testing_mode', type=str, default="FALSE")
     parser.add_argument('--testing_mode_short', type=str, default="FALSE")
     parser.add_argument('--user', type=str)

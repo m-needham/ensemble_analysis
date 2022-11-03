@@ -1,9 +1,15 @@
-'''Custom user functions
+'''Test set of user functions
 
 Author: Michael R. Needham (m.needham@colostate.edu)
-Last Updated: 2 November 2022
+Last Updated: 3 November 2022
 
-These functions will likely be updated for each different analysis task
+These functions are placeholders to ensure that the full ensemble analysis
+program works correctly for an arbitrary analysis question.
+
+The test function is to calculate the brightness temperature from outgoing
+longwave radiation for each ensemble member, following the Stefan-Boltzmann law:
+
+                     F = sigma * temperature ^ 4
 '''
 
 # ==============================================================================
@@ -42,13 +48,7 @@ def custom_variable_list():
 
     # Variables to be read-in
     netcdf_variables = [
-        "Q",  # in kg/kg
-        "T",  # in K
-        "V",  # in m/s
-        "Z3",  # in m
-        "PS",  # need for interp from hybrid to pressure levels
-
-        # Add more variables here
+        "FLNT"
     ]
 
     for var in netcdf_variables:
@@ -67,37 +67,66 @@ def parse_preprocess_kwargs(preprocess_kwargs):
 
     Assumed format is:
         * name1&&value1_name2&&value2
-        
+
     Output will be a dictionary like:
         dict[name1] = value1
         dict[name2] = value2
         ...
         dict[nameN] = valueN
-        
+
     For an arbitrary number of key/val pairs
     '''
+
+    # Get a list of
+    kwarg_pairs = preprocess_kwargs.split("_")
+
+    kwarg_dict = {}
+    for pair in kwarg_pairs:
+        key, val = pair.split("&&")
+
+        kwarg_dict[key] = val
+
+    return kwarg_dict
 
 
 def custom_preprocess_function(
         dset_ens,
         case_name,
         preprocess_kwargs,
-        parallel="TRUE"):
-    '''Function to preprocess data prior to analysis'''
+        parallel="TRUE",
+        skip_preprocess="FALSE"
+):
+    '''Function to preprocess data prior to analysis
 
-    preprocess_debugging_text = f'''
-================================================================================
-Debugging text for ensemble member: {case_name}'
-================================================================================
+THE INPUT "dset_ens" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
 
-{dset_ens}
+THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
+MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
+IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
+DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
 
--------------------------------------CHUNKS-------------------------------------
-{dset_ens.chunks}
---------------------------------------------------------------------------------
+THE DEFAULT BEHAVIOR IS SIMPLY TO PASS INPUT DATA ALONG
+
+Include notes here on specifically how the preprocessing takes place, if at all
     '''
 
-    logging.debug(preprocess_debugging_text)
+    if skip_preprocess == "TRUE":
+
+        logging.info("Flag \"skip_preprocess\"=\"TRUE\"")
+
+        return dset_ens
+
+    logging.debug('''
+================================================================================
+Debugging text for ensemble member: %s'
+================================================================================
+
+%s
+
+-------------------------------------CHUNKS-------------------------------------
+%s
+--------------------------------------------------------------------------------
+    ''', case_name, dset_ens, dset_ens.chunks)
 
     # Parse kwargs for preprocessing step
     kwarg_dict = parse_preprocess_kwargs(preprocess_kwargs)
@@ -110,13 +139,6 @@ Debugging text for ensemble member: {case_name}'
     dset_ens_preprocessed = xr.Dataset()
 
     # INSERT PREPROCESS CODE HERE
-    #
-    # THE INPUT "dset_ens" INCLUDES DATA FOR A SINGLE ENSEMBLE MEMBER.
-    #
-    # THE OUTPUT "dset_ens_preprocessed" INCLUDES DATA FOR A SINGLE ENSEMBLE
-    # MEMBER, WHICH HAS BEEN PREPROCESSED. EVEN IF ONLY ONE VARIABLE IS USED, IT
-    # IS RECOMMENDED TO PASS THE VARIABLE WITHIN A DATASET INSTEAD OF WITHIN A
-    # DATAARRAY, OTHERWISE CHANGES MAY NEED TO BE MADE ELSEWHERE.
 
     return dset_ens_preprocessed  # output should be an xr dataset
 

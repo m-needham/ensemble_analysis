@@ -88,6 +88,7 @@ def main():
     preprocess_kwargs = args.preprocess_kwargs()
     save_path = args.save_path
     save_name = args.save_name
+    skip_preprocess = args.skip_preprocess.upper()
     skip_analysis = args.skip_analysis.upper()
     testing_mode = args.testing_mode.upper()
     testing_mode_short = args.testing_mode_short.upper()
@@ -343,7 +344,7 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
         # Preprocess the data
         dset_ens = parallel_or_serial_preprocess_function(
-            dset_ens, ens_member, preprocess_kwargs, parallel)
+            dset_ens, ens_member, preprocess_kwargs, skip_preprocess, parallel)
 
         # Create the task graph of the custom analysis function for lazy eval
         dset_ens = parallel_or_serial_analysis_function(
