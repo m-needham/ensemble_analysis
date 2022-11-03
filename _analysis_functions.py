@@ -381,7 +381,6 @@ def generate_save_filename(
     if nc_file_timestr == "NONE":
         nc_file_timestr = ""
     
-
     if combined:
 
         ens_filename = save_subdir + \

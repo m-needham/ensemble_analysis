@@ -327,12 +327,30 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
 
         # Get the files for the particular ensemble member
         ens_member_files = case_files[ens_member]
+        
+        if len(ens_member_files) == 0:
+            logging.warning(
+                "NO FILES FOUND FOR THE CURRENT ENSEMBLE MEMBER: %s",ensemble_name
+            )
+            logging.warning(
+'''
+================================================================================
+ENSURE COMPATABLE USAGE OF THE FOLLOWING PARAMETERS IN submit.sh:
+    * DATA_FREQ
+    * ENSEMBLE_NAME
+    * NC_FILE_TIMESTR
+    
+CHECK FILES IN THE FOLLOWING DIRECTORY:
+%s
+================================================================================
+''', data_path)
 
         # Need to specify as 9 or below to log all files
         if int(verbose) < 10:
             logging.debug("Printing filenames...")
             for file in ens_member_files:
                 logging.debug("* %s", file)
+                
 
         # read the data - use dask delayed
         # If testing_mode_short == TRUE, only select 10 timesteps
