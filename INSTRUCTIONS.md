@@ -1,8 +1,22 @@
-## Typical Workflow
+# Typical Workflow
 
 Updated 3 November 2022
 
-#### 1. Make edits to `submit.sh`
+### 1. Create a new project direcotry
+
+**DO NOT EDIT THE FILES IN `./src`**
+
+Instead, in the home directory, run 
+
+```bash
+~$ bash create_project.sh PROJECT_NAME
+```
+
+To create a custom set of files for analysis.
+
+### 2. Make edits to `submit.sh`
+
+Navigate to your new project directory.
 
 * Ensure PBS submission options are correct
     * `-N` Job name
@@ -36,13 +50,13 @@ SAVE_PATH="/glade/work/$USER/ensemble_analysis/"
 
 > Note: If the specified directory does not exist, the script will attempt to create it. However, if one of the parent directories does not exist, the script will throw an error. It is recommended to ensure the desired `SAVE_PATH` exists prior to running the script with the quick command `$ mkdir desired_save_path`
 
-#### 2. Make edits to `analysis_functions.py`
+### 3. Make edits to `analysis_functions.py`
 
 The user will likely not make any edits here with the possible exception of changing requested programming resources for the job submission script:
 
 * Update `setup_cluster` to request the desired programming resources for the problem and ensure the project name is correct
 
-#### 3. Make edits to `user_functions.py`
+### 4. Make edits to `user_functions.py`
 
 1. Update `custom_variable_list` to include the desired variables to import and pass to the custom analysis function
 
@@ -54,7 +68,7 @@ The user will likely not make any edits here with the possible exception of chan
 
 3. Specify `custom_analysis_function` to perform the desired computations for a single ensemble member. All of the variables after preprocessing will automatically be available here.
 
-#### 4. Run the script
+### 4. Run the script
 
 The entire application can be run on [Casper](https://arc.ucar.edu/knowledge_base/70549550) with the command
 
