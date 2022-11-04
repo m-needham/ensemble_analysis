@@ -236,8 +236,6 @@ def setup_cluster(user, job_scheduler="PBS", ncores=4, nprocesses=12,
             memory=memory,  # Amount of memory
             processes=nprocesses,  # How many processes
             queue='casper',
-            # The type of queue to utilize
-            # (/glade/u/apps/dav/opt/usr/bin/execcasper)
             local_directory='$TMPDIR',  # Use your local directory
             resource_spec='select=1:ncpus=6:mem=128GB',  # Specify resources
             project='UHAR0008',  # Input your project ID here
