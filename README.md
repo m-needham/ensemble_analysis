@@ -11,17 +11,18 @@ This directory contains a template for analyzing large ensembles of climate simu
 #### Contents
 
 * Python Scripts
-    * `_analysis_functions.py`
-    * `_ensemble_analysis.py`
-    * `_generate_casenames.py`
-    * `_user_functions.py`
-    * `_user_functions_test_set.py`
+    * `./src/_analysis_functions.py`
+    * `./src/_ensemble_analysis.py`
+    * `./src/_generate_casenames.py`
+    * `./src/_user_functions.py`
+    * `./src/_user_functions_test_set.py`
 * Markdown Notes
     * `INSTRUCTIONS.md`
-    * `NOTES.md`
     * `README.md`
-* Bash Submission Script
-    * `submit.sh`
+* Bash Scripts
+    * `./src/submit.sh`
+    * `./create_project.sh`
+    
 
 ## Overview
 
