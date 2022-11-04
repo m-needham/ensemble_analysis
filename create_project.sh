@@ -1,10 +1,12 @@
 name=$1
 
-if [ -d name ]
+if [ -d $name ]
     then
-    echo "[ERROR] Directory already exists!"
+    echo "[ERROR] Directory \"$name\" already exists!"
     exit 1
 fi
+
+echo "Creating a directory: $name"
 
 mkdir -p $name
 
@@ -19,6 +21,5 @@ cp ../src/submit.sh ./
 
 touch NOTES.md
 
-echo "Directory created successfully."
 
-
+echo "Directory $name created successfully!"
