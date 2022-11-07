@@ -75,8 +75,10 @@ def get_supported_ensembles():
     '''List of ensembles supported by the program'''
 
     supported_ensembles = [
-        "CESM2-SF",
         "CESM2-LE",
+        "CESM2-SF",
+        "CESM1-LE",
+        "CESM1-SF",
     ]
 
     return supported_ensembles
@@ -92,7 +94,8 @@ def get_ensemble_data_path(ensemble_name):
     ensemble_paths = {
         "CESM2-SF": "/glade/campaign/cesm/collections/CESM2-SF/timeseries/atm/proc/tseries/",
         "CESM2-LE": "/glade/campaign/cgd/cesm/CESM2-LE/timeseries/atm/proc/tseries/",
-    }
+        "CESM1-LE": "/glade/campaign/cesm/collections/cesmLE/CESM-CAM5-BGC-LE/atm/proc/tseries/",
+        "CESM1-SF": "/glade/campaign/cesm/collections/cesmLE/CESM-CAM5-BGC-LE/atm/proc/tseries/"}
 
     return ensemble_paths[ensemble_name]
 

@@ -33,6 +33,8 @@ from _user_functions import (
     custom_preprocess_function,
 )
 
+from _generate_casenames import data_freq_compatibility
+
 # ==============================================================================
 # Main Function Call
 # ==============================================================================
@@ -208,8 +210,6 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
                 "Flag \"testing_mode_n_time\" set to %s",
                 testing_mode_n_time)
 
-            # don't need to do anything else
-
     elif testing_mode_n_ens == "FALSE":
 
         # don't need to do anything
@@ -252,7 +252,8 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     # Get list of variables to load
     netcdf_variables = custom_variable_list()
 
-    data_path = get_ensemble_data_path(ensemble_name) + data_freq + "/"
+    data_freq_str = data_freq_compatibility(ensemble_name,data_freq)
+    data_path     = get_ensemble_data_path(ensemble_name) + data_freq_str + "/"
 
     logging.debug("Inferred Data Path:\n  %s", data_path)
 
