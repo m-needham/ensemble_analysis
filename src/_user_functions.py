@@ -110,7 +110,7 @@ THE DEFAULT BEHAVIOR IS SIMPLY TO PASS INPUT DATA ALONG
 Include notes here on specifically how the preprocessing takes place, if at all
     '''
 
-    logging.info("Flag \"skip_preprocess\"=\"%s\"", skip_preprocess)
+    logging.debug("Flag \"skip_preprocess\"=\"%s\"", skip_preprocess)
 
     if skip_preprocess == "TRUE":
 
