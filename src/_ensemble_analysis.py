@@ -208,8 +208,7 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
                 "Flag \"testing_mode_n_time\" set to %s",
                 testing_mode_n_time)
 
-            # don't need to do anything
-            pass
+            # don't need to do anything else
 
     elif testing_mode_n_ens == "FALSE":
 
