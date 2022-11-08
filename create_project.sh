@@ -15,6 +15,8 @@ cd $DIRECTORY_NAME
 cp ../src/_user_functions.py ./
 cp ../src/submit.sh ./
 
+sed -i -e "s/brightness_temperature/$DIRECTORY_NAME/" submit.sh
+
 touch NOTES.md
 
 echo "Directory $DIRECTORY_NAME created successfully!"
