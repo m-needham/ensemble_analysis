@@ -175,10 +175,20 @@ def combine_split_cases(cases, ensemble_name, delimiter="&&"):
 
         for case_number in case_numbers:
 
-            combined_cases_tmp = [
-                case for case in cases if case_number in case]
+            # Ignore cases of the form *.1XX" in favor of cases of the
+            # form *.0XX" because of a coordinate mismatch that I don't want to
+            # worry about fixing. This action includes 35 ensemble members for
+            # analysis and excludes 7 ensemble members
 
-            combined_cases.append(delimiter.join(combined_cases_tmp))
+            if case_number[0] == "1":
+                logging.debug("Ignoring Case: %s", case_number)
+
+            else:
+
+                combined_cases_tmp = [
+                    case for case in cases if case_number in case]
+
+                combined_cases.append(delimiter.join(combined_cases_tmp))
 
         # return np.unique(cases)
 
