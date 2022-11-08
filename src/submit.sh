@@ -64,7 +64,7 @@ SKIP_ANALYSIS="TRUE"
 SKIP_PREPROCESS="TRUE"
 USE_PROVIDED_CASENAMES="FALSE"
 VERBOSE="20" 
-SAVE_FIELDNAME="integrated_rad_bal" 
+SAVE_FIELDNAME="brightness_temperature" 
 USER_FILE_PATH=$PWD
 
 # ================================ TESTING MODE ================================
