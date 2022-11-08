@@ -48,24 +48,48 @@ conda activate py_ucar
 # USE_PROVIDED_CASENAMES: Use casenames provided by user in CASENAMES_FILE
 # VERBOSE:         Output level for log file (10 - debug, 20 - info, 30 - warning, 40 - error)
 
+# ==============================================================================
+# ==============================================================================
+
+# =========================== PRIMARY USER VARIABLES ===========================
 CONCAT_RESULTS="TRUE"
 DATA_FREQ="month_1"
-ENSEMBLE_NAME="CESM2-LE"
+ENSEMBLE_NAME="CESM1-SF"
 JOB_SCHEDULER="NCAR"
 NC_FILE_TIMESTR="NONE" # 18500101-18591231
-PARALLEL="FALSE"
+REMOVE_DASK_LOGS="FALSE"
+PARALLEL="TRUE"
 PREPROCESS_KWARGS="datalev&&250"
-SAVE_PATH="/glade/work/$USER/data_misc/ens_analysis/test/"
-SAVE_FIELDNAME="brightness_temperature" 
-SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}" 
-SKIP_ANALYSIS="FALSE"
+SKIP_ANALYSIS="TRUE"
 SKIP_PREPROCESS="TRUE"
-TESTING_MODE_N_ENS="TRUE"
-TESTING_MODE_N_TIME="FALSE"
 USE_PROVIDED_CASENAMES="FALSE"
-USER_FILE_PATH=$PWD
 VERBOSE="20" 
+SAVE_FIELDNAME="integrated_rad_bal" 
+USER_FILE_PATH=$PWD
+
+# ================================ TESTING MODE ================================
+TESTING_MODE_N_ENS="FALSE"
+TESTING_MODE_N_TIME="FALSE"
+
+# ============================ DOWNSTREAM VARIABLES ============================
 CASENAMES_FILE="casenames_${ENSEMBLE_NAME}.txt"
+SAVE_NAME="${DATA_FREQ}_${SAVE_FIELDNAME}" 
+SAVE_PATH="/glade/work/$USER/data_misc/ensemble_analysis/$SAVE_FIELDNAME/"
+
+
+# ==============================================================================
+# ==============================================================================
+
+# ----------------------- Ensure desired save path exists ----------------------
+if [ -d $SAVE_PATH ]
+    then
+    echo "Files will be saved to existing save directory:"
+    
+    else
+    echo "Making New Save Directory:"
+    mkdir -p $SAVE_PATH
+fi
+echo "  $SAVE_PATH"
 
 
 # -----PERFORM ANALYSIS WITH PYTHON SCRIPTS------------------------------------
@@ -76,8 +100,18 @@ python3 ../src/_generate_casenames.py --casenames_file $CASENAMES_FILE --data_fr
 # 2. PERFORM THE PRIMARY DATA ANALYSIS
 python3 ../src/_ensemble_analysis.py --casenames_file $CASENAMES_FILE --concat_results $CONCAT_RESULTS --data_freq $DATA_FREQ --ensemble_name $ENSEMBLE_NAME --job_scheduler $JOB_SCHEDULER --nc_file_timestr $NC_FILE_TIMESTR --parallel $PARALLEL --preprocess_kwargs $PREPROCESS_KWARGS --save_path $SAVE_PATH --save_name $SAVE_NAME --skip_analysis $SKIP_ANALYSIS --skip_preprocess $SKIP_PREPROCESS --testing_mode_n_ens $TESTING_MODE_N_ENS --testing_mode_n_time $TESTING_MODE_N_TIME --user $USER --user_file_path $USER_FILE_PATH --verbose $VERBOSE 
 
-echo "Removing logs from dask PBS jobs"
-rm dask-worker*
+# Remove dask worker jobs if run in parallel
+if [ $PARALLEL == "TRUE" ]
+    then
+    if [ $REMOVE_DASK_LOGS == "TRUE" ]
+        then
+        echo "Removing logs from dask PBS jobs"
+        rm dask-worker*
+        
+        else
+        echo "Retaining dask logs"  
+    fi
+fi
 
 echo "Finished ensemble analysis script"
 
