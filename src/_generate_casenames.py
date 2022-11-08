@@ -191,6 +191,10 @@ def combine_split_cases(cases, ensemble_name, delimiter="&&"):
                 combined_cases.append(delimiter.join(combined_cases_tmp))
 
         # return np.unique(cases)
+        
+    elif ensemble_name == "CESM1-SF":
+        cases = [x for x in cases if "xlulc" not in x]
+        return np.unique(cases)
 
     else:
         return np.unique(cases)
