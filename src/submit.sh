@@ -48,7 +48,6 @@ conda activate py_ucar
 # USE_PROVIDED_CASENAMES: Use casenames provided by user in CASENAMES_FILE
 # VERBOSE:         Output level for log file (10 - debug, 20 - info, 30 - warning, 40 - error)
 
-CASENAMES_FILE="casenames.txt"
 CONCAT_RESULTS="TRUE"
 DATA_FREQ="month_1"
 ENSEMBLE_NAME="CESM2-LE"
@@ -66,6 +65,7 @@ TESTING_MODE_N_TIME="FALSE"
 USE_PROVIDED_CASENAMES="FALSE"
 USER_FILE_PATH=$PWD
 VERBOSE="20" 
+CASENAMES_FILE="casenames_${ENSEMBLE_NAME}.txt"
 
 
 # -----PERFORM ANALYSIS WITH PYTHON SCRIPTS------------------------------------
