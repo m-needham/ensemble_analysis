@@ -1,25 +1,20 @@
-name=$1
+DIRECTORY_NAME=$1
 
-if [ -d $name ]
+if [ -d $DIRECTORY_NAME ]
     then
-    echo "[ERROR] Directory \"$name\" already exists!"
+    echo "[ERROR] Directory \"$DIRECTORY_NAME\" already exists!"
     exit 1
 fi
 
-echo "Creating a directory: $name"
+echo "Creating a directory: $DIRECTORY_NAME"
 
-mkdir -p $name
+mkdir -p $DIRECTORY_NAME
 
-cd $name
+cd $DIRECTORY_NAME
 
-cp ../src/_analysis_functions.py ./
-cp ../src/_ensemble_analysis.py ./
-cp ../src/_generate_casenames.py ./
 cp ../src/_user_functions.py ./
-cp ../src/_user_functions_test_set.py ./
-
 cp ../src/submit.sh ./
 
 touch NOTES.md
 
-echo "Directory $name created successfully!"
+echo "Directory $DIRECTORY_NAME created successfully!"

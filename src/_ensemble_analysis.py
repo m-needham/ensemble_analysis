@@ -11,6 +11,7 @@ Last Updated: 2 November 2022
 import datetime
 import logging
 import os
+import sys
 
 import dask
 import xarray as xr
@@ -25,12 +26,6 @@ from _analysis_functions import (
     read_casenames,
     save_single_ensemble_member,
     setup_cluster,
-)
-
-from _user_functions import (
-    custom_anaylsis_function,
-    custom_variable_list,
-    custom_preprocess_function,
 )
 
 from _generate_casenames import data_freq_compatibility
@@ -96,6 +91,7 @@ def main():
     testing_mode_n_time = args.testing_mode_n_time.upper()
     verbose = args.verbose
     user = args.user
+    user_file_path = args.user_file_path
 
     # --------------------------------------------------------------------------
     # 1.B Initialize Logging
@@ -109,6 +105,16 @@ def main():
     )
 
     logging.info('Logging initialized at level %s', verbose)
+    
+    
+    logging.info('Updating python path to %s', user_file_path)
+    sys.path.insert(0,user_file_path)
+    
+    from _user_functions import (
+    custom_anaylsis_function,
+    custom_variable_list,
+    custom_preprocess_function,
+)
 
     if skip_analysis == "TRUE":
 
