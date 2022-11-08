@@ -4,7 +4,7 @@ Flexible python script to perform arbitrary analysis of large ensemble model out
 
 > For instructions on how to use this script, see `INSTRUCTIONS.md`
 
-**Updated 3 November 2022**
+**Updated 8 November 2022**
 
 This directory contains a template for analyzing large ensembles of climate simulations with a custom analysis function. Most of the code in this directory does not need to change for different analysis goals. Instead it is designed for the user to specify the functions `custom_variable_list`, `custom_preprocess_function`, and `custom_analysis_function` to be applied identically to each ensemble member.
 
@@ -14,7 +14,6 @@ This directory contains a template for analyzing large ensembles of climate simu
     * `./src/_analysis_functions.py`
     * `./src/_ensemble_analysis.py`
     * `./src/_generate_casenames.py`
-    * `./src/_user_functions.py`
     * `./src/_user_functions_test_set.py`
 * Markdown Notes
     * `INSTRUCTIONS.md`
@@ -46,14 +45,18 @@ The `submit.sh` then calls two python scripts:
 
 ## Test functions
 
-There is an additional python file, `_user_functions_test_set.py`, which contains a minimum working example of the capabilities of this script. The `submit.sh` script, as written, does not call `_user_functions_test_set.py`; However if `_user_functions_test_set.py` is renamed to `_user_functions.py` (and replaces the existing file), then the testing example will be run. 
+The python file `_user_functions_test_set.py` contains a minimum working example of the capabilities of this script. When the following bash script is run:
 
-The testing example inputs outgoing longwave radiation data (variable name `FLNT`), and calculates brightness temperature following the [Stefan-Boltzmann Law](https://en.wikipedia.org/wiki/Stefan%E2%80%93Boltzmann_law):
+```bash
+bash create_project.sh PROJECT_NAME
+``` 
 
+`_user_functions_test_set.py` is copied to the newly-created directory `/PROJECT_NAME` and renamed to `_user_functions.py`, where it can be fun by the submit script.
+
+>The testing example inputs outgoing longwave radiation data (variable name `FLNT`), and calculates brightness temperature following the [Stefan-Boltzmann Law](https://en.wikipedia.org/wiki/Stefan%E2%80%93Boltzmann_law):
 $$
 F = \sigma T_B^4 \quad \rightarrow \quad T_B = \Big(\frac{F}{\sigma}\Big)^\frac{1}{4}
 $$
-
 Where $\sigma=5.67\times10^{-8}$ is the Stefan-Boltzmann constant.
 
 

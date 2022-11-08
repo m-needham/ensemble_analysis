@@ -9,7 +9,7 @@ Updated 3 November 2022
 Instead, in the home directory, run 
 
 ```bash
-~$ bash create_project.sh PROJECT_NAME
+bash create_project.sh PROJECT_NAME
 ```
 
 To create a custom set of files for analysis.
@@ -50,13 +50,7 @@ SAVE_PATH="/glade/work/$USER/ensemble_analysis/"
 
 > Note: If the specified directory does not exist, the script will attempt to create it. However, if one of the parent directories does not exist, the script will throw an error. It is recommended to ensure the desired `SAVE_PATH` exists prior to running the script with the quick command `$ mkdir desired_save_path`
 
-### 3. Make edits to `analysis_functions.py`
-
-The user will likely not make any edits here with the possible exception of changing requested programming resources for the job submission script:
-
-* Update `setup_cluster` to request the desired programming resources for the problem and ensure the project name is correct
-
-### 4. Make edits to `user_functions.py`
+### 3. Make edits to `user_functions.py`
 
 1. Update `custom_variable_list` to include the desired variables to import and pass to the custom analysis function
 
@@ -84,7 +78,23 @@ bash submit.sh
 
 although the performance of the script may appear to suffer because the PBS submission to initialize the dask cluster (see appendix below for more details about parallelism with dask) may languish in the job queue.
 
-> It is a good idea to test that the custom analysis function works as expected. To do so, edit the `submit.sh` script to set `TESTING_MADE="TRUE"` which will apply the analysis to only two ensemble members.
+### Testing mode
+
+It is a good idea to test that the custom analysis function works as expected. To do so, edit the `submit.sh` script to set the following testing flags to `"TRUE"` (by default, they are both set to `"FALSE"`.
+
+```bash
+# ================================ TESTING MODE ================================
+TESTING_MODE_N_ENS="FALSE"
+TESTING_MODE_N_TIME="FALSE"
+```
+
+* If `TESTING_MODE_N_ENS="TRUE"`, the script will be run with analysis applied only to the first two ensemble members
+
+* If `TESTING_MODE_N_TIME="FALSE"`, the script will be run with analysis only applied to the first ten timesteps
+
+> NOTE: `TESTING_MODE_N_ENS` must be set to "TRUE" in order for `TESTING_MODE_N_TIME` to be utilized. The following combination:
+`TESTING_MODE_N_ENS="FALSE"`, `TESTING_MODE_N_TIME="TRUE"`
+will have no effect
 
 ## Appendix: Parallel Computation
 
