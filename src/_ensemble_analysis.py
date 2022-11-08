@@ -105,16 +105,15 @@ def main():
     )
 
     logging.info('Logging initialized at level %s', verbose)
-    
-    
+
     logging.info('Updating python path to %s', user_file_path)
-    sys.path.insert(0,user_file_path)
-    
+    sys.path.insert(0, user_file_path)
+
     from _user_functions import (
-    custom_anaylsis_function,
-    custom_variable_list,
-    custom_preprocess_function,
-)
+        custom_anaylsis_function,
+        custom_variable_list,
+        custom_preprocess_function,
+    )
 
     if skip_analysis == "TRUE":
 
@@ -258,8 +257,8 @@ ANALYZING {n_ensembles_for_test} ENSEMBLE MEMBERS
     # Get list of variables to load
     netcdf_variables = custom_variable_list()
 
-    data_freq_str = data_freq_compatibility(ensemble_name,data_freq)
-    data_path     = get_ensemble_data_path(ensemble_name) + data_freq_str + "/"
+    data_freq_str = data_freq_compatibility(ensemble_name, data_freq)
+    data_path = get_ensemble_data_path(ensemble_name) + data_freq_str + "/"
 
     logging.debug("Inferred Data Path:\n  %s", data_path)
 

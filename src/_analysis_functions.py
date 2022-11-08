@@ -60,7 +60,7 @@ def parse_command_line_arguments():
     parser.add_argument('--testing_mode_n_ens', type=str, default="FALSE")
     parser.add_argument('--testing_mode_n_time', type=str, default="FALSE")
     parser.add_argument('--user', type=str)
-    parser.add_argument('--user_file_path', type=str)    
+    parser.add_argument('--user_file_path', type=str)
     parser.add_argument('--verbose', nargs='?', type=int, const=10, default=20)
 
     args = parser.parse_args()
