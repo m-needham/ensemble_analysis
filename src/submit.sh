@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### NAME OF JOB FOR THE QUEUE
-#PBS -N ens_250_sub      
+#PBS -N PLACEHOLDER_JOBNAME      
 
 ### ACCOUNT NUMBER
 #PBS -A UHAR0008                    
@@ -31,23 +31,6 @@ module del python
 module load conda/latest
 conda activate py_ucar
 
-# -----GLOBAL VARIABLES FOR ALL SCRIPTS----------------------------------------
-
-# CASENAMES_FILE:  Name of local text file to hold casenames. See USE_PROVIDED_CASENAMES, below
-# DATA_FREQ:       Time frequency for input data (see README for details)
-# ENSEMBLE_NAME:   String identifier to help with functions. See _analysis_functions.py for a list of supported members
-# JOB_SCHEDULER:   Type of system for the dask cluster
-# NC_FILE_TIMESTR: Additional string to filter nc files. Useful for only calculating on high-temporal-resolution data. To ignore, use "NONE"
-# PARALLEL:        (valid: "TRUE", "FALSE") Use Parallel or Serial computing 
-# PREPROCESS_KWARGS: Expected format is "name1&&value1_name2&&value2_"
-# SAVE_PATH:       Location to store output files
-# SAVE_NAME:       String identifier for output files
-# SKIP_ANALYSIS:   (valid: "TRUE", "FALSE") If TRUE, only run _generate_casenames.py
-# TESTING_MODE_N_ENS:    (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only two ensemble members
-# TESTING_MODE_N_TIME:   (valid: "TRUE", "FALSE") If "TRUE", perform analysis on only 10 timesteps from each ensemble member
-# USE_PROVIDED_CASENAMES: Use casenames provided by user in CASENAMES_FILE
-# VERBOSE:         Output level for log file (10 - debug, 20 - info, 30 - warning, 40 - error)
-
 # ==============================================================================
 # ==============================================================================
 
@@ -58,7 +41,7 @@ ENSEMBLE_NAME="CESM1-SF"
 JOB_SCHEDULER="NCAR"
 NC_FILE_TIMESTR="NONE" # 18500101-18591231
 REMOVE_DASK_LOGS="FALSE"
-PARALLEL="TRUE"
+PARALLEL="FALSE"
 PREPROCESS_KWARGS="datalev&&250"
 SKIP_ANALYSIS="TRUE"
 SKIP_PREPROCESS="TRUE"
@@ -68,8 +51,8 @@ SAVE_FIELDNAME="brightness_temperature"
 USER_FILE_PATH=$PWD
 
 # ================================ TESTING MODE ================================
-TESTING_MODE_N_ENS="FALSE"
-TESTING_MODE_N_TIME="FALSE"
+TESTING_MODE_N_ENS="TRUE"
+TESTING_MODE_N_TIME="TRUE"
 
 # ============================ DOWNSTREAM VARIABLES ============================
 CASENAMES_FILE="casenames_${ENSEMBLE_NAME}.txt"
