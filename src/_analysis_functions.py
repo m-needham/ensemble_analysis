@@ -410,6 +410,7 @@ def generate_save_filename(
 def save_single_ensemble_member(dset_save, ens_member_filename, parallel):
     '''Function to save a netcdf file for a single ensemble member'''
 
+    logging.info("Saving to %s",ens_member_filename)
     logging.debug("Saving the following dataset:\n%s", dset_save)
 
     if parallel == "TRUE":
